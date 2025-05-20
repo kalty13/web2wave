@@ -7,15 +7,15 @@ st.set_page_config(layout="wide")
 st.title("📊 W2W Funnel Report (Paywall Block + Colorful Labels)")
 
 # === 1. Загрузка файлов ===
-st.markdown("### Загрузка файлов данных")
-col1, col2 = st.columns(2)
-with col1:
-    funnel_file = st.file_uploader("CSV событий (воронка)", type="csv", key="funnel_file")
-with col2:
-    costs_file = st.file_uploader("CSV затрат (costs)", type="csv", key="costs_file")
+#st.markdown("### Загрузка файлов данных")
+#col1, col2 = st.columns(2)
+#with col1:
+#    funnel_file = st.file_uploader("CSV событий (воронка)", type="csv", key="funnel_file")
+#with col2:
+#    costs_file = st.file_uploader("CSV затрат (costs)", type="csv", key="costs_file")
 
-funnel_path = funnel_file if funnel_file else "all_amplitude_events_with_quiz_id.csv"
-costs_path = costs_file if costs_file else "2025-5-20_21_11_adjust_report_export.csv"
+#funnel_path = funnel_file if funnel_file else "all_amplitude_events_with_quiz_id.csv"
+#costs_path = costs_file if costs_file else "2025-5-20_21_11_adjust_report_export.csv"
 
 # Чтение с автоопределением разделителя
 def smart_read_csv(path):
