@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import numpy as np
 
 st.set_page_config(layout="wide")
-st.title("📊 W2W Funnel Report (Paywall Block + Colorful Labels)")
+st.title("📊 W2W Funnel Report")
 
 # === 1. Загрузка файлов ===
 #st.markdown("### Загрузка файлов данных")
@@ -18,6 +18,11 @@ st.title("📊 W2W Funnel Report (Paywall Block + Colorful Labels)")
 #costs_path = costs_file if costs_file else "2025-5-20_21_11_adjust_report_export.csv"
 
 # Чтение с автоопределением разделителя
+
+# Пути к данным (положи их рядом с .py или в папке data/)
+funnel_path = "all_amplitude_events_with_quiz_id.csv"      # или "data/all_amplitude_events_with_quiz_id.csv"
+costs_path = "2025-5-20_21_11_adjust_report_export.csv"     # или "data/2025-5-20_21_11_adjust_report_export.csv"
+
 def smart_read_csv(path):
     df = pd.read_csv(path)
     if len(df.columns) == 1 and ";" in df.columns[0]:
