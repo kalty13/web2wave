@@ -36,6 +36,45 @@ df['event_date'] = pd.to_datetime(df['event_date'])
 costs_df = smart_read_csv(costs_path)
 costs_df['day'] = pd.to_datetime(costs_df['day'])
 
+import streamlit as st
+import pandas as pd
+import datetime
+
+# Подразумевается, что df — твой датафрейм с колонкой 'event_date'
+
+# 1. Собираем список всех дат в данных
+all_dates = sorted(df['event_date'].dt.date.unique())
+if not all_dates:
+    st.warning("Нет доступных дат в данных!")
+    st.stop()
+
+# 2. Состояние выбранной даты (через session_state)
+if 'current_date_idx' not in st.session_state:
+    st.session_state.current_date_idx = len(all_dates) - 2 if len(all_dates) > 1 else 0  # По умолчанию вчера
+
+def change_date(delta):
+    st.session_state.current_date_idx = min(max(0, st.session_state.current_date_idx + delta), len(all_dates) - 1)
+
+col_prev, col_curr, col_next = st.columns([1,4,1])
+with col_prev:
+    if st.button("⬅️", key="prev_date"):
+        change_date(-1)
+with col_curr:
+    st.markdown(f"### 📅 Дата: <b>{all_dates[st.session_state.current_date_idx]}</b>", unsafe_allow_html=True)
+with col_next:
+    if st.button("➡️", key="next_date"):
+        change_date(1)
+
+# 3. Дата, выбранная стрелочками:
+selected_date = all_dates[st.session_state.current_date_idx]
+
+# 4. Теперь фильтруй всё как обычно:
+filtered_df = df[df['event_date'].dt.date == selected_date]
+costs_period = costs_df[costs_df['day'].dt.date == selected_date]
+
+# Дальше можешь строить свой график/воронку и summary для filtered_df и costs_period
+
+
 # === 2. Фильтры ===
 import datetime
 
