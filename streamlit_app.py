@@ -177,16 +177,48 @@ paddle_total = paddle_success + paddle_fail
 paddle_success_ratio = (paddle_success / paddle_total * 100) if paddle_total > 0 else 0
 paddle_fail_ratio = (paddle_fail / paddle_total * 100) if paddle_total > 0 else 0
 
+# 1. Медианное время от начала воронки (первый step или CompleteRegistration) до первого показа пейволла (CompleteRegistration)
+def median_time_to_paywall(df):
+    times = []
+    for user, group in df.groupby('user_id'):
+        group = group.sort_values('event_time')
+        # Ищем первый step/start (или можешь заменить на свой стартовый event)
+        first_step = group[group['event_type'].str.startswith('Step ')]['event_time']
+        paywall = group[group['event_type'] == 'CompleteRegistration']['event_time']
+        if not first_step.empty and not paywall.empty:
+            delta = (paywall.iloc[0] - first_step.iloc[0]).total_seconds() / 60  # в минутах
+            times.append(delta)
+    return np.median(times) if times else None
+
+# 2. Медианное время от начала пейволла (CompleteRegistration) до покупки (Purchase)
+def median_time_paywall_to_purchase(df):
+    times = []
+    for user, group in df.groupby('user_id'):
+        group = group.sort_values('event_time')
+        paywall = group[group['event_type'] == 'CompleteRegistration']['event_time']
+        purchase = group[group['event_type'] == 'Purchase']['event_time']
+        if not paywall.empty and not purchase.empty:
+            delta = (purchase.iloc[0] - paywall.iloc[0]).total_seconds() / 60  # в минутах
+            times.append(delta)
+    return np.median(times) if times else None
+
+median_minutes_to_paywall = median_time_to_paywall(quiz_df)
+median_minutes_paywall_to_purchase = median_time_paywall_to_purchase(quiz_df)
+
+
 # Основные метрики для summary bar
 summary_cols_data = [
     ("💸 <span style='color:#ffe066'>Total Spend</span>", f"<b>${total_spend:,.2f}</b>"),
     ("🧮 Cost per Lead", f"<b>${total_spend / users_at_step[0]:.2f}</b>" if users_at_step[0] > 0 else "—"),
+    ("⏳ Median time to paywall", f"<b>{median_minutes_to_paywall:.1f} мин</b>" if median_minutes_to_paywall is not None else "—"),
+    ("⏳ Median paywall→purchase", f"<b>{median_minutes_paywall_to_purchase:.1f} мин</b>" if median_minutes_paywall_to_purchase is not None else "—"),
     ("📆 Dates", f"<b>{date_from} — {date_to}</b>"),
     ("🔻 Drop-off", f"<b>{step_names[max_drop_idx]}</b> <span style='color:#e74c3c'>({dropoff_between_steps[max_drop_idx]:.1f}%)</span>"),
     ("🟣 Paddle Initiate", f"<span style='color:#ad69fa'><b>{users_paddle_initiated}</b></span>"),
     ("✅ Paddle Success", f"<span style='color:limegreen'><b>{paddle_success} ({paddle_success_ratio:.1f}%)</b></span>"),
     ("❌ Paddle Fail", f"<span style='color:#e74c3c'><b>{paddle_fail} ({paddle_fail_ratio:.1f}%)</b></span>")
 ]
+
 
 
 summary_bar = " &nbsp; | &nbsp; ".join(
