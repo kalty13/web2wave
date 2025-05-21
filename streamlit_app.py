@@ -195,34 +195,6 @@ summary_data = [
 ]
 
 import pandas as pd
-
-if paddle_total > 0:
-    paddle_text = (
-        f"✅ <b>Paddle Success:</b> <span style='color:green; font-size:18px'><b>{paddle_success} ({paddle_success_ratio:.1f}%)</b></span> &nbsp;&nbsp; "
-        f"❌ <b>Paddle Fail:</b> <span style='color:#e74c3c; font-size:18px'><b>{paddle_fail} ({paddle_fail_ratio:.1f}%)</b></span>"
-    )
-    st.markdown(
-        f"""
-        <div style='
-            padding: 1em;
-            border-radius: 12px;
-            background: #fffbe8;
-            border: 2.5px solid #ffe066;
-            margin-bottom: 14px;
-            text-align: center;
-            font-size: 18px;
-        '>
-        ⚡️ <b style="font-size: 20px">ALERT: Paddle Transactions</b><br>
-        {paddle_text}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-else:
-    st.markdown("❗️ Нет Paddle транзакций за выбранный период.")
-
-
-
 summary_df = pd.DataFrame(summary_data, columns=["Metric", "Value", "Comment"])
 st.dataframe(summary_df, hide_index=True, use_container_width=True)
 
