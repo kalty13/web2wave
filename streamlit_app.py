@@ -36,45 +36,6 @@ df['event_date'] = pd.to_datetime(df['event_date'])
 costs_df = smart_read_csv(costs_path)
 costs_df['day'] = pd.to_datetime(costs_df['day'])
 
-import streamlit as st
-import pandas as pd
-import datetime
-
-# Подразумевается, что df — твой датафрейм с колонкой 'event_date'
-
-# 1. Собираем список всех дат в данных
-all_dates = sorted(df['event_date'].dt.date.unique())
-if not all_dates:
-    st.warning("Нет доступных дат в данных!")
-    st.stop()
-
-# 2. Состояние выбранной даты (через session_state)
-if 'current_date_idx' not in st.session_state:
-    st.session_state.current_date_idx = len(all_dates) - 2 if len(all_dates) > 1 else 0  # По умолчанию вчера
-
-def change_date(delta):
-    st.session_state.current_date_idx = min(max(0, st.session_state.current_date_idx + delta), len(all_dates) - 1)
-
-col_prev, col_curr, col_next = st.columns([1,4,1])
-with col_prev:
-    if st.button("⬅️", key="prev_date"):
-        change_date(-1)
-with col_curr:
-    st.markdown(f"### 📅 Дата: <b>{all_dates[st.session_state.current_date_idx]}</b>", unsafe_allow_html=True)
-with col_next:
-    if st.button("➡️", key="next_date"):
-        change_date(1)
-
-# 3. Дата, выбранная стрелочками:
-selected_date = all_dates[st.session_state.current_date_idx]
-
-# 4. Теперь фильтруй всё как обычно:
-filtered_df = df[df['event_date'].dt.date == selected_date]
-costs_period = costs_df[costs_df['day'].dt.date == selected_date]
-
-# Дальше можешь строить свой график/воронку и summary для filtered_df и costs_period
-
-
 # === 2. Фильтры ===
 import datetime
 
@@ -338,21 +299,30 @@ fig.update_layout(
     legend=dict(x=1, y=1.15, orientation="h"),
     margin=dict(t=80, b=80),
 )
-# --- Стрелки и дата рядом с графиком ---
 
-col_prev, col_label, col_next = st.columns([1, 4, 1])
-with col_prev:
-    if st.button("⬅️", key="prev_date_g"):
-        change_date(-1)
-with col_label:
-    st.markdown(f"<div style='text-align:center; font-size:20px; font-weight:600;'>📅 {selected_date}</div>", unsafe_allow_html=True)
-with col_next:
-    if st.button("➡️", key="next_date_g"):
-        change_date(1)
+streamlit.errors.StreamlitDuplicateElementId: This app has encountered an error. The original error message is redacted to prevent data leaks. Full error details have been recorded in the logs (if you're on Streamlit Cloud, click on 'Manage app' in the lower right of your app).
 
-# Сразу под этим — сам график:
-st.plotly_chart(fig, use_container_width=True)
-
+Traceback:
+File "/mount/src/web2wave/streamlit_app.py", line 357, in <module>
+    st.plotly_chart(fig, use_container_width=True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/metrics_util.py", line 444, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/elements/plotly_chart.py", line 509, in plotly_chart
+    plotly_chart_proto.id = compute_and_register_element_id(
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "plotly_chart",
+        ^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        use_container_width=use_container_width,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/elements/lib/utils.py", line 239, in compute_and_register_element_id
+    _register_element_id(ctx, element_type, element_id)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/elements/lib/utils.py", line 145, in _register_element_id
+    raise StreamlitDuplicateElementId(element_type)
 
 st.plotly_chart(fig, use_container_width=True)
 
