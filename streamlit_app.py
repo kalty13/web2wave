@@ -180,6 +180,37 @@ cr_paywall_to_purchase = (users_purchase / users_paywall * 100) if users_paywall
 cpa_purchase = (total_spend / users_purchase) if users_purchase > 0 else 0
 dropoff_paywall_to_purchase = 100 - cr_paywall_to_purchase if users_paywall > 0 else 0
 
+# === ВСТАВЬ ЭТОТ КУСОК СЮДА (АЛЕРТ) ===
+paddle_success = users_paddle_completed
+paddle_fail = unique_users_on_step("Paddle checkout.payment.failed")
+paddle_total = paddle_success + paddle_fail
+
+paddle_success_ratio = (paddle_success / paddle_total * 100) if paddle_total > 0 else 0
+paddle_fail_ratio = (paddle_fail / paddle_total * 100) if paddle_total > 0 else 0
+
+if paddle_total > 0:
+    st.markdown(
+        f"""
+        <div style='
+            padding: 1em;
+            border-radius: 12px;
+            background: #fffbe8;
+            border: 2.5px solid #ffe066;
+            margin-bottom: 14px;
+            text-align: center;
+            font-size: 18px;
+        '>
+        ⚡️ <b style="font-size: 20px">ALERT: Paddle Transactions</b><br>
+        ✅ <b>Paddle Success:</b> <span style='color:green; font-size:18px'><b>{paddle_success} ({paddle_success_ratio:.1f}%)</b></span> &nbsp;&nbsp;
+        ❌ <b>Paddle Fail:</b> <span style='color:#e74c3c; font-size:18px'><b>{paddle_fail} ({paddle_fail_ratio:.1f}%)</b></span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+else:
+    st.warning("❗️ Нет Paddle транзакций за выбранный период.")
+
+# === Дальше идёт твоя summary таблица ===
 summary_data = [
     ["Total Spend", f"${total_spend:,.2f}", "Суммарные затраты"],
     ["Users на 1 шаге", users_start, "Вход в воронку"],
@@ -197,6 +228,7 @@ summary_data = [
 import pandas as pd
 summary_df = pd.DataFrame(summary_data, columns=["Metric", "Value", "Comment"])
 st.dataframe(summary_df, hide_index=True, use_container_width=True)
+
 
 
 # === 7. График ===
