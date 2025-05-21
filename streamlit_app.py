@@ -338,6 +338,22 @@ fig.update_layout(
     legend=dict(x=1, y=1.15, orientation="h"),
     margin=dict(t=80, b=80),
 )
+# --- Стрелки и дата рядом с графиком ---
+
+col_prev, col_label, col_next = st.columns([1, 4, 1])
+with col_prev:
+    if st.button("⬅️", key="prev_date_g"):
+        change_date(-1)
+with col_label:
+    st.markdown(f"<div style='text-align:center; font-size:20px; font-weight:600;'>📅 {selected_date}</div>", unsafe_allow_html=True)
+with col_next:
+    if st.button("➡️", key="next_date_g"):
+        change_date(1)
+
+# Сразу под этим — сам график:
+st.plotly_chart(fig, use_container_width=True)
+
+
 st.plotly_chart(fig, use_container_width=True)
 
 # ===== PATH ANALYSIS ПО ПЕЙВОЛУ (обновлённый) =====
