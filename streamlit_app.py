@@ -39,7 +39,6 @@ costs_df['day'] = pd.to_datetime(costs_df['day'])
 # === 2. Фильтры ===
 import datetime
 
-# === 2. Фильтры ===
 min_date = df['event_date'].min()
 max_date = df['event_date'].max()
 today = max_date.date()
@@ -48,30 +47,33 @@ yesterday = today - datetime.timedelta(days=1)
 st.markdown("### 📅 Быстрый выбор периода")
 date_option = st.radio(
     "Период данных", 
-    options=["Вчера", "Последние 3 дня", "Последние 7 дней", "Выбрать вручную"],
-    index=0,  # по умолчанию Вчера
+    options=["Сегодня", "Вчера", "Последние 3 дня", "Последние 7 дней", "Выбрать вручную"],
+    index=0,  # по умолчанию "Сегодня"
     horizontal=True
 )
 
-if date_option == "Вчера":
+if date_option == "Сегодня":
+    date_from = date_to = today
+elif date_option == "Вчера":
     date_from = date_to = yesterday
 elif date_option == "Последние 3 дня":
     date_from = today - datetime.timedelta(days=3)
-    date_to = today - datetime.timedelta(days=1)
+    date_to = today
 elif date_option == "Последние 7 дней":
     date_from = today - datetime.timedelta(days=7)
-    date_to = today - datetime.timedelta(days=1)
+    date_to = today
 else:
     col1, col2 = st.columns(2)
     with col1:
-        date_from = st.date_input("Start date", min_value=min_date, max_value=max_date, value=yesterday)
+        date_from = st.date_input("Start date", min_value=min_date, max_value=max_date, value=today)
     with col2:
-        date_to = st.date_input("End date", min_value=min_date, max_value=max_date, value=yesterday)
+        date_to = st.date_input("End date", min_value=min_date, max_value=max_date, value=today)
 
 filtered_df = df[(df['event_date'] >= pd.to_datetime(date_from)) & (df['event_date'] <= pd.to_datetime(date_to))]
 costs_period = costs_df[
     (costs_df['day'] >= pd.to_datetime(date_from)) & (costs_df['day'] <= pd.to_datetime(date_to))
 ]
+
 
 quiz_ids = filtered_df['quiz_id'].unique()
 quiz_id = st.selectbox("Quiz ID", quiz_ids)
