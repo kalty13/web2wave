@@ -153,17 +153,9 @@ for i in range(len(users_at_step)):
     )
     hover_text.append(text)
 
-# === 6. Summary ===
-summary_cols = st.columns(4)
-summary_cols[0].markdown(f"**Total Spend**<br>${total_spend:.2f}", unsafe_allow_html=True)
-summary_cols[1].markdown(f"**Cost per Lead**<br>${total_spend / users_at_step[0]:.2f}" if users_at_step[0] > 0 else "—", unsafe_allow_html=True)
-summary_cols[2].markdown(f"**Selected dates**<br>{date_from} — {date_to}", unsafe_allow_html=True)
-summary_cols[3].markdown(f"**Biggest Drop-off**<br>{step_names[max_drop_idx]}<br>{dropoff_between_steps[max_drop_idx]:.1f}%", unsafe_allow_html=True)
+# === 6. SUMMARY BAR ===
 
-# ==== SUPER SUMMARY TABLE ====
-st.markdown("## 📋 Сводная таблица по воронке, cost и пейволлу")
-
-# Находим пользователей на каждом ключевом шаге
+# Ключевые расчёты
 def unique_users_on_step(step):
     return quiz_df[quiz_df['event_type'] == step]['user_id'].nunique()
 
@@ -174,43 +166,55 @@ users_paddle_initiated = unique_users_on_step("Paddle checkout.payment.initiated
 users_paddle_completed = unique_users_on_step("Paddle checkout.completed")
 users_purchase = unique_users_on_step("Purchase")
 
-# Conversion rates
 cr_paywall_to_initiate = (users_initiate / users_paywall * 100) if users_paywall > 0 else 0
 cr_paywall_to_purchase = (users_purchase / users_paywall * 100) if users_paywall > 0 else 0
 cpa_purchase = (total_spend / users_purchase) if users_purchase > 0 else 0
 dropoff_paywall_to_purchase = 100 - cr_paywall_to_purchase if users_paywall > 0 else 0
 
-# === ВСТАВЬ ЭТОТ КУСОК СЮДА (АЛЕРТ) ===
 paddle_success = users_paddle_completed
 paddle_fail = unique_users_on_step("Paddle checkout.payment.failed")
 paddle_total = paddle_success + paddle_fail
-
 paddle_success_ratio = (paddle_success / paddle_total * 100) if paddle_total > 0 else 0
 paddle_fail_ratio = (paddle_fail / paddle_total * 100) if paddle_total > 0 else 0
 
-if paddle_total > 0:
-    st.markdown(
-        f"""
-        <div style='
-            padding: 1em;
-            border-radius: 12px;
-            background: #fffbe8;
-            border: 2.5px solid #ffe066;
-            margin-bottom: 14px;
-            text-align: center;
-            font-size: 18px;
-        '>
-        ⚡️ <b style="font-size: 20px">ALERT: Paddle Transactions</b><br>
-        ✅ <b>Paddle Success:</b> <span style='color:green; font-size:18px'><b>{paddle_success} ({paddle_success_ratio:.1f}%)</b></span> &nbsp;&nbsp;
-        ❌ <b>Paddle Fail:</b> <span style='color:#e74c3c; font-size:18px'><b>{paddle_fail} ({paddle_fail_ratio:.1f}%)</b></span>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-else:
-    st.warning("❗️ Нет Paddle транзакций за выбранный период.")
+# Основные метрики для summary bar
+summary_cols_data = [
+    ("💸 <span style='color:#ffe066'>Total Spend</span>", f"<b>${total_spend:,.2f}</b>"),
+    ("🧮 Cost per Lead", f"<b>${total_spend / users_at_step[0]:.2f}</b>" if users_at_step[0] > 0 else "—"),
+    ("📆 Dates", f"<b>{date_from} — {date_to}</b>"),
+    ("🔻 Drop-off", f"<b>{step_names[max_drop_idx]}</b> <span style='color:#e74c3c'>({dropoff_between_steps[max_drop_idx]:.1f}%)</span>"),
+    ("✅ Paddle Success", f"<span style='color:limegreen'><b>{paddle_success} ({paddle_success_ratio:.1f}%)</b></span>"),
+    ("❌ Paddle Fail", f"<span style='color:#e74c3c'><b>{paddle_fail} ({paddle_fail_ratio:.1f}%)</b></span>")
+]
 
-# === Дальше идёт твоя summary таблица ===
+summary_bar = " &nbsp; | &nbsp; ".join(
+    [f"{label}: {value}" for label, value in summary_cols_data]
+)
+
+st.markdown(
+    f"""
+    <div style='
+        padding: 0.65em 1.2em;
+        border-radius: 12px;
+        background: #232324;
+        border: 2.5px solid #ffe066;
+        margin-bottom: 18px;
+        text-align: left;
+        font-size: 16px;
+        color: #fff;
+        line-height: 1.7;
+        font-family: Inter, Arial, sans-serif;
+        font-weight: 500;
+    '>
+    {summary_bar}
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ==== SUPER SUMMARY TABLE ====
+st.markdown("## 📋 Сводная таблица по воронке, cost и пейволлу")
+
 summary_data = [
     ["Total Spend", f"${total_spend:,.2f}", "Суммарные затраты"],
     ["Users на 1 шаге", users_start, "Вход в воронку"],
@@ -225,9 +229,9 @@ summary_data = [
     ["Drop-off Paywall → Покупка", f"{dropoff_paywall_to_purchase:.1f}%", "Потери на пути с paywall до покупки"]
 ]
 
-import pandas as pd
 summary_df = pd.DataFrame(summary_data, columns=["Metric", "Value", "Comment"])
 st.dataframe(summary_df, hide_index=True, use_container_width=True)
+
 
 
 
