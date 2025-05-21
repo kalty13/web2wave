@@ -196,7 +196,6 @@ summary_data = [
 
 import pandas as pd
 
-# === АЛЕРТ по Paddle Success/Fail ===
 if paddle_total > 0:
     paddle_text = (
         f"✅ <b>Paddle Success:</b> <span style='color:green; font-size:18px'><b>{paddle_success} ({paddle_success_ratio:.1f}%)</b></span> &nbsp;&nbsp; "
@@ -221,6 +220,7 @@ if paddle_total > 0:
     )
 else:
     st.markdown("❗️ Нет Paddle транзакций за выбранный период.")
+
 
 
 summary_df = pd.DataFrame(summary_data, columns=["Metric", "Value", "Comment"])
