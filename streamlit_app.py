@@ -183,9 +183,11 @@ summary_cols_data = [
     ("🧮 Cost per Lead", f"<b>${total_spend / users_at_step[0]:.2f}</b>" if users_at_step[0] > 0 else "—"),
     ("📆 Dates", f"<b>{date_from} — {date_to}</b>"),
     ("🔻 Drop-off", f"<b>{step_names[max_drop_idx]}</b> <span style='color:#e74c3c'>({dropoff_between_steps[max_drop_idx]:.1f}%)</span>"),
+    ("🟣 Paddle Initiate", f"<span style='color:#ad69fa'><b>{users_paddle_initiated}</b></span>"),
     ("✅ Paddle Success", f"<span style='color:limegreen'><b>{paddle_success} ({paddle_success_ratio:.1f}%)</b></span>"),
     ("❌ Paddle Fail", f"<span style='color:#e74c3c'><b>{paddle_fail} ({paddle_fail_ratio:.1f}%)</b></span>")
 ]
+
 
 summary_bar = " &nbsp; | &nbsp; ".join(
     [f"{label}: {value}" for label, value in summary_cols_data]
