@@ -318,7 +318,7 @@ key_events = [
     "Paddle checkout.payment.failed",
     "Paddle checkout.completed",
     "Purchase",
-    "Page closed/exit"
+    "Page closed"
     # если что-то появится — просто добавь
 ]
 
