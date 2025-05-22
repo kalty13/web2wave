@@ -80,26 +80,6 @@ quiz_id = st.selectbox("Quiz ID", quiz_ids)
 quiz_df = filtered_df[filtered_df['quiz_id'] == quiz_id]
 
 
-# === DAILY REPORT: Вчера vs Позавчера ===
-
-# Получаем уникальные даты (UTC или твой таймзон, смотри сам)
-all_dates = sorted(df['event_date'].dt.date.unique())
-if len(all_dates) >= 2:
-    yesterday = all_dates[-1]
-    day_before = all_dates[-2]
-
-    df_yesterday = df[df['event_date'].dt.date == yesterday]
-    df_day_before = df[df['event_date'].dt.date == day_before]
-    costs_yesterday = costs_df[costs_df['day'].dt.date == yesterday]
-    costs_day_before = costs_df[costs_df['day'].dt.date == day_before]
-
-    def get_metrics(df_slice, costs_slice):
-        quiz_users = df_slice[df_slice['event_type'].str.startswith('Step ')]['user_id'].nunique()
-        users_paywall = df_slice[df_slice['event_type'] == 'CompleteRegistration']['user_id'].nunique()
-        users_initiate = df_slice[df_slice['event_type'] == 'initiatecheckout']['user_id'].nunique()
-       
-
-
 # === 3. Собираем шаги воронки ===
 paywall_steps = [
     "CompleteRegistration",
@@ -354,6 +334,25 @@ fig.update_layout(
     margin=dict(t=80, b=80),
 )
 st.plotly_chart(fig, use_container_width=True)
+
+# === DAILY REPORT: Вчера vs Позавчера ===
+
+# Получаем уникальные даты (UTC или твой таймзон, смотри сам)
+all_dates = sorted(df['event_date'].dt.date.unique())
+if len(all_dates) >= 2:
+    yesterday = all_dates[-1]
+    day_before = all_dates[-2]
+
+    df_yesterday = df[df['event_date'].dt.date == yesterday]
+    df_day_before = df[df['event_date'].dt.date == day_before]
+    costs_yesterday = costs_df[costs_df['day'].dt.date == yesterday]
+    costs_day_before = costs_df[costs_df['day'].dt.date == day_before]
+
+    def get_metrics(df_slice, costs_slice):
+        quiz_users = df_slice[df_slice['event_type'].str.startswith('Step ')]['user_id'].nunique()
+        users_paywall = df_slice[df_slice['event_type'] == 'CompleteRegistration']['user_id'].nunique()
+        users_initiate = df_slice[df_slice['event_type'] == 'initiatecheckout']['user_id'].nunique()
+       
 
 # ===== PATH ANALYSIS ПО ПЕЙВОЛУ (обновлённый) =====
 st.markdown("---")
