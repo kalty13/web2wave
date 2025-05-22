@@ -15,6 +15,35 @@ def core_metrics(df_slice, costs_slice):
     init_purchase = df_slice[df_slice['event_type'] == 'InitiateCheckout']['user_id'].nunique()
     conv_paywall_initiate = (init_purchase / registration_complete * 100) if registration_complete > 0 else 0
 
+    paddle_initiated = df_slice[df_slice['event_type'] == 'Paddle checkout.payment.initiated']['user_id'].nunique()
+    paddle_success = df_slice[df_slice['event_type'] == 'Paddle checkout.completed']['user_id'].nunique()
+    paddle_fail = df_slice[df_slice['event_type'] == 'Paddle checkout.payment.failed']['user_id'].nunique()
+    conv_quiz_to_paddle_success = (paddle_success / first_step_event * 100) if first_step_event > 0 else 0
+    conv_initiate_to_paddle_initiated = (paddle_initiated / init_purchase * 100) if init_purchase > 0 else 0
+
+    return {
+        "Total Spend": f"${total_spend:,.2f}",
+        "Cost per Lead": f"${cpl:,.2f}",
+        "Started Quiz": first_step_event,
+        "Registration Complete": registration_complete,
+        "Quiz Started → Quiz Finished": f"{conv_start_finish:.1f}%",
+        "Initiate Purchase": init_purchase,
+        "Paywall → Initiate Purchase": f"{conv_paywall_initiate:.1f}%",
+        "Paddle Initiated": paddle_initiated,
+        "Initiate → Paddle Initiated": f"{conv_initiate_to_paddle_initiated:.1f}%",
+        "Paddle Success": paddle_success,
+        "Paddle Fail": paddle_fail,
+        "Quiz → Paddle Success": f"{conv_quiz_to_paddle_success:.2f}%"
+    }
+
+    total_spend = costs_slice['cost'].sum()
+    first_step_event = df_slice[df_slice['event_type'].str.startswith("Step 00")]['user_id'].nunique()
+    registration_complete = df_slice[df_slice['event_type'] == 'CompleteRegistration']['user_id'].nunique()
+    cpl = total_spend / first_step_event if first_step_event > 0 else 0
+    conv_start_finish = (registration_complete / first_step_event * 100) if first_step_event > 0 else 0
+    init_purchase = df_slice[df_slice['event_type'] == 'InitiateCheckout']['user_id'].nunique()
+    conv_paywall_initiate = (init_purchase / registration_complete * 100) if registration_complete > 0 else 0
+
     paddle_success = df_slice[df_slice['event_type'] == 'Paddle checkout.completed']['user_id'].nunique()
     paddle_fail = df_slice[df_slice['event_type'] == 'Paddle checkout.payment.failed']['user_id'].nunique()
     conv_quiz_to_paddle_success = (paddle_success / first_step_event * 100) if first_step_event > 0 else 0
@@ -109,17 +138,20 @@ if len(all_dates) >= 3:
 
     # нужные метрики
     metric_keys = [
-        "Total Spend",
-        "Cost per Lead",
-        "Started Quiz",
-        "Registration Complete",
-        "Quiz Started → Quiz Finished",
-        "Initiate Purchase",
-        "Paywall → Initiate Purchase",
-        "Paddle Success",
-        "Paddle Fail",
-        "Quiz → Paddle Success"
-    ]
+    "Total Spend",
+    "Cost per Lead",
+    "Started Quiz",
+    "Registration Complete",
+    "Quiz Started → Quiz Finished",
+    "Initiate Purchase",
+    "Paywall → Initiate Purchase",
+    "Paddle Initiated",
+    "Initiate → Paddle Initiated",
+    "Paddle Success",
+    "Paddle Fail",
+    "Quiz → Paddle Success"
+]
+
 
 
     st.markdown(f"""
