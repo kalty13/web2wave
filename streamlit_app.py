@@ -6,49 +6,63 @@ st.set_page_config(layout="wide")
 
 st.title("📊 W2W Funnel Report")
 
-# Красивая анимированная кнопка — псевдокнопка, но с hover-эффектом и анимацией!
+# ===== Pro Mode (уменьшенная кнопка + увеличенный тумблер) =====
+
 st.markdown("""
 <style>
 .fake-pro-btn {
     display: inline-block;
     background: linear-gradient(90deg,#ffe066 60%,#ad69fa 100%);
     color: #232324;
-    font-size: 2.1rem;
+    font-size: 1.06rem;
     font-weight: 800;
     border: none;
-    border-radius: 22px;
-    padding: 0.55em 2.5em;
+    border-radius: 15px;
+    padding: 0.33em 1.3em;
     cursor: pointer;
-    box-shadow: 0 7px 30px #ad69fa55;
-    margin: 26px 0 2px 0;
-    letter-spacing: 1.05px;
-    text-shadow: 0 2px 8px #fff8, 0 1px 1px #ffe06680;
+    box-shadow: 0 4px 15px #ad69fa55;
+    margin: 10px 0 2px 0;
+    letter-spacing: 0.7px;
+    text-shadow: 0 1px 4px #fff5, 0 1px 1px #ffe06650;
     user-select: none;
-    animation: shine 2.3s linear infinite;
+    animation: shine 2.1s linear infinite;
     transition: 
-        transform 0.16s cubic-bezier(.4,2.4,.9,.8), 
-        box-shadow 0.18s, 
-        color 0.14s;
+        transform 0.13s cubic-bezier(.4,2.4,.9,.8), 
+        box-shadow 0.15s, 
+        color 0.13s;
     outline: none;
 }
 .fake-pro-btn:hover {
-    transform: scale(1.08) rotate(-2.5deg);
-    box-shadow: 0 10px 38px #ffe06677, 0 0px 0 2px #ad69fa77;
+    transform: scale(1.11) rotate(-2deg);
+    box-shadow: 0 6px 20px #ffe06655, 0 0px 0 2px #ad69fa77;
     color: #ad69fa;
 }
 @keyframes shine {
-    0% { box-shadow: 0 0 16px #ffe06644, 0 0 0 #ad69fa33;}
-    50% { box-shadow: 0 0 36px #ad69fa99, 0 0 30px #ffe06633;}
-    100% { box-shadow: 0 0 16px #ffe06644, 0 0 0 #ad69fa33;}
+    0% { box-shadow: 0 0 8px #ffe06644, 0 0 0 #ad69fa33;}
+    50% { box-shadow: 0 0 16px #ad69fa99, 0 0 14px #ffe06633;}
+    100% { box-shadow: 0 0 8px #ffe06644, 0 0 0 #ad69fa33;}
+}
+.big-toggle label[data-testid="stWidgetLabel"] {
+    font-size: 1.42rem !important;
+    font-weight: 800 !important;
+    color: #ad69fa !important;
+    letter-spacing: 0.5px;
+}
+.big-toggle div[data-testid="stToggle"] {
+    zoom: 1.5;
 }
 </style>
 <div class="fake-pro-btn" tabindex="0" title="Переведи тумблер ниже для активации!">🚀 Enable Pro Mode</div>
 """, unsafe_allow_html=True)
 
+# Настоящий увеличенный свитчер (toggle)
 if 'pro_mode_on' not in st.session_state:
     st.session_state['pro_mode_on'] = False
 
-pro_mode = st.toggle("Pro Mode", value=st.session_state['pro_mode_on'], key="pro_toggle")
+with st.container():
+    st.markdown('<div class="big-toggle">', unsafe_allow_html=True)
+    pro_mode = st.toggle("Pro Mode", value=st.session_state['pro_mode_on'], key="pro_toggle")
+    st.markdown('</div>', unsafe_allow_html=True)
 st.session_state['pro_mode_on'] = pro_mode
 
 if st.session_state['pro_mode_on']:
@@ -77,11 +91,11 @@ if st.session_state['pro_mode_on']:
             </div>
         </div>
         """, unsafe_allow_html=True)
-
     close_col = st.columns([6,1,6])[1]
     with close_col:
         if st.button("Закрыть окно Pro Mode", key="close_pro_btn"):
             st.session_state['pro_mode_on'] = False
+
 
 
 
