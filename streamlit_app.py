@@ -6,9 +6,6 @@ st.set_page_config(layout="wide")
 
 st.title("📊 W2W Funnel Report")
 
-st.set_page_config(layout="wide")
-st.title("📊 W2W Funnel Report")
-
 # === Цветная и анимированная кнопка через HTML ===
 st.markdown("""
 <style>
