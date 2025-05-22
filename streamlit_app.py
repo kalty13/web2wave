@@ -6,69 +6,47 @@ st.set_page_config(layout="wide")
 
 st.title("📊 W2W Funnel Report")
 
-# Кастомный стиль для Streamlit-кнопки через CSS
+# === Цветная и анимированная кнопка через HTML ===
 st.markdown("""
-    <style>
-    div.stButton > button.pro-mode-true {
-        background: linear-gradient(90deg,#ffe066 65%,#ad69fa 100%) !important;
-        color: #232324 !important;
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 0.54em 1.5em !important;
-        margin-top: 4px !important;
-        margin-right: 18px !important;
-        box-shadow: 0 4px 18px #ad69fa40;
-        transition: transform 0.13s cubic-bezier(.4,2.4,.9,.8), box-shadow 0.2s;
-        animation: shine 1.8s linear infinite;
-    }
-    div.stButton > button.pro-mode-true:hover {
-        transform: scale(1.09) rotate(-2deg);
-        box-shadow: 0 7px 32px #ffe06655, 0 0 0 2px #ad69fa77;
-        color: #ad69fa !important;
-    }
-    @keyframes shine {
-        0% { box-shadow: 0 0 16px #ffe06644, 0 0 0 #ad69fa33;}
-        50% { box-shadow: 0 0 30px #ad69fa99, 0 0 20px #ffe06633;}
-        100% { box-shadow: 0 0 16px #ffe06644, 0 0 0 #ad69fa33;}
-    }
-    </style>
+<style>
+.pro-mode-btn {
+    display: inline-block;
+    background: linear-gradient(90deg,#ffe066 65%,#ad69fa 100%);
+    color: #232324;
+    font-size: 1.08rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 9px;
+    padding: 0.47em 1.35em;
+    cursor: pointer;
+    box-shadow: 0 4px 18px #ad69fa40;
+    transition: transform 0.13s cubic-bezier(.4,2.4,.9,.8), box-shadow 0.2s;
+    animation: shine 1.8s linear infinite;
+    margin-left: 10px;
+    margin-top: 4px;
+}
+.pro-mode-btn:hover {
+    transform: scale(1.09) rotate(-2deg);
+    box-shadow: 0 7px 32px #ffe06655, 0 0 0 2px #ad69fa77;
+    color: #ad69fa;
+}
+@keyframes shine {
+    0% { box-shadow: 0 0 16px #ffe06644, 0 0 0 #ad69fa33;}
+    50% { box-shadow: 0 0 30px #ad69fa99, 0 0 20px #ffe06633;}
+    100% { box-shadow: 0 0 16px #ffe06644, 0 0 0 #ad69fa33;}
+}
+</style>
 """, unsafe_allow_html=True)
 
-# Делаем кнопку в правом верхнем углу, через пустой столбец для выравнивания
-col1, col2 = st.columns([10, 1])
+# Кнопка — html + сессия
+col1, col2 = st.columns([7, 1])
 with col2:
-    pro_mode = st.button("🚀 Pro Mode", key="pro_mode", help="Открыть Pro-режим", type="secondary")
-    st.markdown("""
-        <style>
-        /* Hack: находим последнюю кнопку и добавляем ей класс для стилей */
-        div.stButton > button { all: unset; }
-        div.stButton > button:nth-child(1) { all: unset; }
-        div.stButton > button { all: unset; }
-        div.stButton > button, div.stButton > button.pro-mode-true {
-            all: unset;
-            background: linear-gradient(90deg,#ffe066 65%,#ad69fa 100%) !important;
-            color: #232324 !important;
-            font-size: 1.1rem !important;
-            font-weight: 700 !important;
-            border: none !important;
-            border-radius: 12px !important;
-            padding: 0.54em 1.5em !important;
-            margin-top: 4px !important;
-            margin-right: 18px !important;
-            box-shadow: 0 4px 18px #ad69fa40;
-            transition: transform 0.13s cubic-bezier(.4,2.4,.9,.8), box-shadow 0.2s;
-            animation: shine 1.8s linear infinite;
-            cursor: pointer;
-        }
-        div.stButton > button:hover, div.stButton > button.pro-mode-true:hover {
-            transform: scale(1.09) rotate(-2deg);
-            box-shadow: 0 7px 32px #ffe06655, 0 0 0 2px #ad69fa77;
-            color: #ad69fa !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+    pro_mode = st.button("🚀 Pro Mode", key="pro_mode_btn", help="Открыть Pro-режим", type="primary")
+    # Цвет и анимация идут через класс .pro-mode-btn
+    st.markdown(
+        '<button class="pro-mode-btn" onclick="window.parent.postMessage({pro: true}, \'*\')">🚀 Pro Mode</button>',
+        unsafe_allow_html=True
+    )
 
 if 'show_pro_popup' not in st.session_state:
     st.session_state['show_pro_popup'] = False
@@ -99,12 +77,15 @@ if st.session_state['show_pro_popup']:
                         Твой аккаунт будет разблокирован в течение 10 минут!
                     </div>
                 </div>
-                <button onclick="window.location.reload()" style="margin-top: 30px; background: #ffe066; color: #232324; font-weight: bold; border-radius: 9px; padding: 8px 28px; border: none; font-size: 1rem; cursor: pointer;">Закрыть</button>
             </div>
         </div>
         """, unsafe_allow_html=True)
-    st.stop()
 
+    # Кнопка для закрытия (обычный Streamlit, чтобы не было ошибок)
+    close_col = st.columns([6,1,6])[1]
+    with close_col:
+        if st.button("Закрыть окно Pro Mode"):
+            st.session_state['show_pro_popup'] = False
 
 
 
