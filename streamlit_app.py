@@ -6,13 +6,6 @@ st.set_page_config(layout="wide")
 
 st.title("📊 W2W Funnel Report")
 
-import streamlit as st
-
-import streamlit as st
-import pandas as pd
-import plotly.graph_objects as go
-import numpy as np
-
 st.set_page_config(layout="wide")
 st.title("📊 W2W Funnel Report")
 
