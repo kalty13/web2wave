@@ -6,6 +6,53 @@ import numpy as np
 st.set_page_config(layout="wide")
 st.title("📊 W2W Funnel Report")
 
+import streamlit as st
+
+st.set_page_config(layout="wide")
+st.title("📊 W2W Funnel Report")
+
+# Кнопка Pro Mode
+show_pro_popup = st.session_state.get('show_pro_popup', False)
+col1, col2 = st.columns([7, 1])
+with col2:
+    if st.button("🚀 Pro Mode", key="pro_mode_btn", help="Открыть Pro-режим"):
+        st.session_state['show_pro_popup'] = True
+        show_pro_popup = True
+
+# POPUP реализация
+if st.session_state.get('show_pro_popup', False):
+    st.markdown("""
+        <div style="
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(30,30,40,0.87); z-index: 9999; display: flex; align-items: center; justify-content: center;
+        ">
+            <div style="background: #232324; border: 3px solid #ffe066; border-radius: 18px; padding: 36px 48px; box-shadow: 0 8px 32px #0007; min-width: 370px; text-align: center;">
+                <div style="font-size: 2.3rem; font-weight: bold; color: #ffe066;">🚀 Pro Mode</div>
+                <div style="margin-top: 20px; font-size: 1.1rem; color: #fff;">
+                    Хочешь пожизненный доступ к Pro-функциям и секретным фичам? 😉<br>
+                    <span style="font-size: 1.45rem; font-weight: bold; color: #38ef7d;">0.003฿</span>
+                    <div style="margin-top:12px; color:#ffe066; font-size: 1.15rem;">
+                        Переведи на адрес:<br>
+                        <span style="user-select: all; color: #fff; font-family: monospace;">14H4r2phGv9mbK4XHDdDDR6JPjDbvDr6Zp</span>
+                    </div>
+                    <div style="margin-top:10px; color:#ff6363; font-size: 0.99rem;">
+                        После оплаты — напиши в <a href="https://t.me/kalty13" target="_blank" style="color:#ffe066;">Telegram</a>.<br>
+                        Твой аккаунт будет разблокирован в течение 10 минут!
+                    </div>
+                </div>
+                <form action="" method="post">
+                    <button name="close_pro_popup" type="submit" style="margin-top: 30px; background: #ffe066; color: #232324; font-weight: bold; border-radius: 9px; padding: 8px 28px; border: none; font-size: 1rem; cursor: pointer;">Закрыть</button>
+                </form>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Обработка закрытия
+    if 'close_pro_popup' in st.session_state:
+        st.session_state['show_pro_popup'] = False
+
+
 def core_metrics(df_slice, costs_slice):
     total_spend = costs_slice['cost'].sum()
     first_step_event = df_slice[df_slice['event_type'].str.startswith("Step 00")]['user_id'].nunique()
