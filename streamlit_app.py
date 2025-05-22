@@ -24,7 +24,7 @@ def core_metrics(df_slice, costs_slice):
 
     return {
         "Total Spend": f"${total_spend:,.2f}",
-        "Cost per Lead": f"${cpl:,.2f}",
+        "Cost per Click": f"${cpl:,.2f}",
         "Started Quiz": first_step_event,
         "Registration Complete": registration_complete,
         "Quiz Started → Quiz Finished": f"{conv_start_finish:.1f}%",
@@ -52,7 +52,7 @@ def core_metrics(df_slice, costs_slice):
 
     return {
         "Total Spend": f"${total_spend:,.2f}",
-        "Cost per Lead": f"${cpl:,.2f}",
+        "Cost per Click": f"${cpl:,.2f}",
         "Started Quiz": first_step_event,
         "Registration Complete": registration_complete,
         "Quiz Started → Quiz Finished": f"{conv_start_finish:.1f}%",
@@ -140,7 +140,7 @@ if len(all_dates) >= 3:
     # нужные метрики
     metric_keys = [
     "Total Spend",
-    "Cost per Lead",
+    "Cost per Click",
     "Started Quiz",
     "Registration Complete",
     "Quiz Started → Quiz Finished",
@@ -300,7 +300,7 @@ for i in range(len(users_at_step)):
     text = (
         f"<b>🔹 {step_names[i]}</b><br>"
         f"<b>👤 Users:</b> {users_at_step[i]}<br>"
-        f"<b>🧮 % of leads:</b> {percent_at_step[i]:.1f}%<br>"
+        f"<b>🧮 % of Click:</b> {percent_at_step[i]:.1f}%<br>"
         f"<b>💰 CPA:</b> ${cpa_at_step[i]:.2f}<br>"
         f"{conv}<br>"
         f"{drop}"
@@ -365,7 +365,7 @@ median_minutes_paywall_to_purchase = median_time_paywall_to_purchase(quiz_df)
 # Основные метрики для summary bar
 summary_cols_data = [
     ("💸 <span style='color:#ffe066'>Total Spend</span>", f"<b>${total_spend:,.2f}</b>"),
-    ("🧮 Cost per Lead", f"<b>${total_spend / users_at_step[0]:.2f}</b>" if users_at_step[0] > 0 else "—"),
+    ("🧮 Cost per Click", f"<b>${total_spend / users_at_step[0]:.2f}</b>" if users_at_step[0] > 0 else "—"),
     ("⏳ Median time to paywall", f"<b>{median_minutes_to_paywall:.1f} мин</b>" if median_minutes_to_paywall is not None else "—"),
     ("⏳ Median paywall→purchase", f"<b>{median_minutes_paywall_to_purchase:.1f} мин</b>" if median_minutes_paywall_to_purchase is not None else "—"),
     ("📆 Dates", f"<b>{date_from} — {date_to}</b>"),
