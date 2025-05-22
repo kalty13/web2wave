@@ -45,14 +45,12 @@ st.markdown("""
 <div class="fake-pro-btn" tabindex="0" title="Переведи тумблер ниже для активации!">🚀 Enable Pro Mode</div>
 """, unsafe_allow_html=True)
 
-# Настоящий свитчер
 if 'pro_mode_on' not in st.session_state:
     st.session_state['pro_mode_on'] = False
 
 pro_mode = st.toggle("Pro Mode", value=st.session_state['pro_mode_on'], key="pro_toggle")
 st.session_state['pro_mode_on'] = pro_mode
 
-# POPUP при ON
 if st.session_state['pro_mode_on']:
     st.markdown("""
         <div style="
@@ -80,7 +78,6 @@ if st.session_state['pro_mode_on']:
         </div>
         """, unsafe_allow_html=True)
 
-    # Кнопка закрытия (реальный Streamlit-виджет)
     close_col = st.columns([6,1,6])[1]
     with close_col:
         if st.button("Закрыть окно Pro Mode", key="close_pro_btn"):
