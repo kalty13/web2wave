@@ -24,7 +24,7 @@ def core_metrics(df_slice, costs_slice):
 
     return {
         "Total Spend": f"${total_spend:,.2f}",
-        "Cost per Click": f"${cpl:,.2f}",
+        "Cost per Lead": f"${cpl:,.2f}",
         "Started Quiz": first_step_event,
         "Registration Complete": registration_complete,
         "Quiz Started → Quiz Finished": f"{conv_start_finish:.1f}%",
