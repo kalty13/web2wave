@@ -7,6 +7,7 @@ st.set_page_config(layout="wide")
 st.title("📊 W2W Funnel Report")
 
 # ===== Pro Mode (уменьшенная кнопка + увеличенный тумблер) =====
+# ===== Pro Mode: компактная кнопка + центрированный toggle в рамке + анимированный glow =====
 
 st.markdown("""
 <style>
@@ -21,7 +22,7 @@ st.markdown("""
     padding: 0.33em 1.3em;
     cursor: pointer;
     box-shadow: 0 4px 15px #ad69fa55;
-    margin: 10px 0 2px 0;
+    margin: 10px 0 6px 0;
     letter-spacing: 0.7px;
     text-shadow: 0 1px 4px #fff5, 0 1px 1px #ffe06650;
     user-select: none;
@@ -29,42 +30,101 @@ st.markdown("""
     transition: 
         transform 0.13s cubic-bezier(.4,2.4,.9,.8), 
         box-shadow 0.15s, 
-        color 0.13s;
+        color 0.13s,
+        filter 0.21s;
     outline: none;
+    position: relative;
+    z-index: 3;
 }
-.fake-pro-btn:hover {
-    transform: scale(1.11) rotate(-2deg);
-    box-shadow: 0 6px 20px #ffe06655, 0 0px 0 2px #ad69fa77;
-    color: #ad69fa;
+/* “Глоу” и партиклы */
+.fake-pro-btn.glow {
+    filter: drop-shadow(0 0 18px #ffe066bb) drop-shadow(0 0 40px #ad69fa99);
+    /* simple simulated particles via extra box-shadow */
+    box-shadow: 
+        0 4px 15px #ad69fa55, 
+        0 -3px 16px #ffe06688,
+        5px 7px 0 0 #ffe06644,
+        -7px 6px 0 0 #ad69fa55,
+        3px -8px 0 0 #ffe06644;
+    animation: shine-strong 1.1s linear infinite;
 }
 @keyframes shine {
     0% { box-shadow: 0 0 8px #ffe06644, 0 0 0 #ad69fa33;}
     50% { box-shadow: 0 0 16px #ad69fa99, 0 0 14px #ffe06633;}
     100% { box-shadow: 0 0 8px #ffe06644, 0 0 0 #ad69fa33;}
 }
+@keyframes shine-strong {
+    0% { filter: brightness(1.03) drop-shadow(0 0 10px #ffe066bb); }
+    50% { filter: brightness(1.18) drop-shadow(0 0 26px #ffe066) drop-shadow(0 0 42px #ad69fa); }
+    100% { filter: brightness(1.02) drop-shadow(0 0 10px #ffe066bb); }
+}
+
+/* Рамка для свитчера, по центру */
+.center-switch-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -2px;
+    margin-bottom: 14px;
+}
+.switch-border {
+    background: linear-gradient(98deg, #ffe066 60%, #ad69fa 100%);
+    padding: 2.2px;
+    border-radius: 17px;
+    box-shadow: 0 2px 18px #ffe06622;
+    min-width: 230px;
+}
+.switch-inner {
+    background: #18181b;
+    border-radius: 15px;
+    padding: 9px 38px 7px 38px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .big-toggle label[data-testid="stWidgetLabel"] {
-    font-size: 1.42rem !important;
+    font-size: 1.45rem !important;
     font-weight: 800 !important;
     color: #ad69fa !important;
     letter-spacing: 0.5px;
 }
 .big-toggle div[data-testid="stToggle"] {
-    zoom: 1.5;
+    zoom: 1.48;
 }
 </style>
-<div class="fake-pro-btn" tabindex="0" title="Переведи тумблер ниже для активации!">🚀 Enable Pro Mode</div>
+
+<div style="width:100%;display:flex;flex-direction:column;align-items:center;">
+    <div class="fake-pro-btn" id="pro_btn">🚀 Enable Pro Mode</div>
+    <div class="center-switch-wrap" id="switchwrap">
+      <div class="switch-border">
+        <div class="switch-inner big-toggle" id="switchinner">
+          <!-- Тут будет Streamlit Toggle -->
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+const wrap = window.parent?.document?.getElementById("switchwrap");
+const btn = window.parent?.document?.getElementById("pro_btn");
+if(wrap && btn) {
+    wrap.onmouseenter = () => btn.classList.add('glow');
+    wrap.onmouseleave = () => btn.classList.remove('glow');
+}
+</script>
 """, unsafe_allow_html=True)
 
-# Настоящий увеличенный свитчер (toggle)
+# === НАСТОЯЩИЙ toggle ===
 if 'pro_mode_on' not in st.session_state:
     st.session_state['pro_mode_on'] = False
 
-with st.container():
-    st.markdown('<div class="big-toggle">', unsafe_allow_html=True)
+with st.empty():
+    st.markdown('<div class="center-switch-wrap"><div class="switch-border"><div class="switch-inner big-toggle">', unsafe_allow_html=True)
     pro_mode = st.toggle("Pro Mode", value=st.session_state['pro_mode_on'], key="pro_toggle")
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div></div></div>', unsafe_allow_html=True)
 st.session_state['pro_mode_on'] = pro_mode
 
+# POPUP
 if st.session_state['pro_mode_on']:
     st.markdown("""
         <div style="
@@ -95,8 +155,6 @@ if st.session_state['pro_mode_on']:
     with close_col:
         if st.button("Закрыть окно Pro Mode", key="close_pro_btn"):
             st.session_state['pro_mode_on'] = False
-
-
 
 
 
