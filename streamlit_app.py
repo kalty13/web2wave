@@ -55,8 +55,6 @@ df['event_date'] = pd.to_datetime(df['event_date'])
 costs_df = smart_read_csv(costs_path)
 costs_df['day'] = pd.to_datetime(costs_df['day'])
 
-# === DAILY REPORT: Вчера vs Позавчера ===
-
 # Получаем уникальные даты (UTC или твой таймзон, смотри сам)
 # === DAILY REPORT: Вчера vs Позавчера с нужными метриками ===
 
