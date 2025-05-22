@@ -80,6 +80,26 @@ quiz_id = st.selectbox("Quiz ID", quiz_ids)
 quiz_df = filtered_df[filtered_df['quiz_id'] == quiz_id]
 
 
+# === DAILY REPORT: Вчера vs Позавчера ===
+
+# Получаем уникальные даты (UTC или твой таймзон, смотри сам)
+all_dates = sorted(df['event_date'].dt.date.unique())
+if len(all_dates) >= 2:
+    yesterday = all_dates[-1]
+    day_before = all_dates[-2]
+
+    df_yesterday = df[df['event_date'].dt.date == yesterday]
+    df_day_before = df[df['event_date'].dt.date == day_before]
+    costs_yesterday = costs_df[costs_df['day'].dt.date == yesterday]
+    costs_day_before = costs_df[costs_df['day'].dt.date == day_before]
+
+    def get_metrics(df_slice, costs_slice):
+        quiz_users = df_slice[df_slice['event_type'].str.startswith('Step ')]['user_id'].nunique()
+        users_paywall = df_slice[df_slice['event_type'] == 'CompleteRegistration']['user_id'].nunique()
+        users_initiate = df_slice[df_slice['event_type'] == 'initiatecheckout']['user_id'].nunique()
+       
+
+
 # === 3. Собираем шаги воронки ===
 paywall_steps = [
     "CompleteRegistration",
@@ -161,7 +181,7 @@ def unique_users_on_step(step):
 
 users_start = users_at_step[0] if users_at_step else 0
 users_paywall = unique_users_on_step("CompleteRegistration")
-users_initiate = unique_users_on_step("initiatecheckout")
+users_initiate = unique_users_on_step("InitiateCheckout")
 users_paddle_initiated = unique_users_on_step("Paddle checkout.payment.initiated")
 users_paddle_completed = unique_users_on_step("Paddle checkout.completed")
 users_purchase = unique_users_on_step("Purchase")
