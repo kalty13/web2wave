@@ -14,6 +14,11 @@ def core_metrics(df_slice, costs_slice):
     conv_start_finish = (registration_complete / first_step_event * 100) if first_step_event > 0 else 0
     init_purchase = df_slice[df_slice['event_type'] == 'InitiateCheckout']['user_id'].nunique()
     conv_paywall_initiate = (init_purchase / registration_complete * 100) if registration_complete > 0 else 0
+
+    paddle_success = df_slice[df_slice['event_type'] == 'Paddle checkout.completed']['user_id'].nunique()
+    paddle_fail = df_slice[df_slice['event_type'] == 'Paddle checkout.payment.failed']['user_id'].nunique()
+    conv_quiz_to_paddle_success = (paddle_success / first_step_event * 100) if first_step_event > 0 else 0
+
     return {
         "Total Spend": f"${total_spend:,.2f}",
         "Cost per Lead": f"${cpl:,.2f}",
@@ -21,8 +26,12 @@ def core_metrics(df_slice, costs_slice):
         "Registration Complete": registration_complete,
         "Quiz Started → Quiz Finished": f"{conv_start_finish:.1f}%",
         "Initiate Purchase": init_purchase,
-        "Paywall → Initiate Purchase": f"{conv_paywall_initiate:.1f}%"
+        "Paywall → Initiate Purchase": f"{conv_paywall_initiate:.1f}%",
+        "Paddle Success": paddle_success,
+        "Paddle Fail": paddle_fail,
+        "Quiz → Paddle Success": f"{conv_quiz_to_paddle_success:.2f}%"
     }
+
 
 
 # === 1. Загрузка файлов ===
@@ -106,8 +115,12 @@ if len(all_dates) >= 3:
         "Registration Complete",
         "Quiz Started → Quiz Finished",
         "Initiate Purchase",
-        "Paywall → Initiate Purchase"
+        "Paywall → Initiate Purchase",
+        "Paddle Success",
+        "Paddle Fail",
+        "Quiz → Paddle Success"
     ]
+
 
     st.markdown(f"""
     <div style='
