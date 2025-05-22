@@ -41,10 +41,10 @@ st.markdown("""
 # Кнопка — html + сессия
 col1, col2 = st.columns([7, 1])
 with col2:
-    pro_mode = st.button("🚀 Pro Mode", key="pro_mode_btn", help="Открыть Pro-режим", type="primary")
+    pro_mode = st.button("🚀 Enable Pro Mode", key="pro_mode_btn", help="Открыть Pro-режим", type="primary")
     # Цвет и анимация идут через класс .pro-mode-btn
     st.markdown(
-        '<button class="pro-mode-btn" onclick="window.parent.postMessage({pro: true}, \'*\')">🚀 Pro Mode</button>',
+        '<button class="pro-mode-btn" onclick="window.parent.postMessage({pro: true}, \'*\')">🚀 Enable Pro Mode</button>',
         unsafe_allow_html=True
     )
 
@@ -62,7 +62,7 @@ if st.session_state['show_pro_popup']:
             background: rgba(30,30,40,0.87); z-index: 9999; display: flex; align-items: center; justify-content: center;
         ">
             <div style="background: #232324; border: 3px solid #ffe066; border-radius: 18px; padding: 36px 48px; box-shadow: 0 8px 32px #0007; min-width: 370px; text-align: center;">
-                <div style="font-size: 2.3rem; font-weight: bold; color: #ffe066;">🚀 Pro Mode</div>
+                <div style="font-size: 2.3rem; font-weight: bold; color: #ffe066;">🚀 Enable Pro Mode</div>
                 <div style="margin-top: 20px; font-size: 1.1rem; color: #fff;">
                     Хочешь пожизненный доступ к Pro-функциям и секретным фичам? 😉<br>
                     <span style="font-size: 1.45rem; font-weight: bold; color: #38ef7d;">0.003฿</span>
