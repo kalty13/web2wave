@@ -36,6 +36,77 @@ df['event_date'] = pd.to_datetime(df['event_date'])
 costs_df = smart_read_csv(costs_path)
 costs_df['day'] = pd.to_datetime(costs_df['day'])
 
+# === DAILY REPORT: Вчера vs Позавчера ===
+
+# Получаем уникальные даты (UTC или твой таймзон, смотри сам)
+all_dates = sorted(df['event_date'].dt.date.unique())
+if len(all_dates) >= 2:
+    yesterday = all_dates[-1]
+    day_before = all_dates[-2]
+
+    df_yesterday = df[df['event_date'].dt.date == yesterday]
+    df_day_before = df[df['event_date'].dt.date == day_before]
+    costs_yesterday = costs_df[costs_df['day'].dt.date == yesterday]
+    costs_day_before = costs_df[costs_df['day'].dt.date == day_before]
+
+    def get_metrics(df_slice, costs_slice):
+        quiz_users = df_slice[df_slice['event_type'].str.startswith('Step ')]['user_id'].nunique()
+        users_paywall = df_slice[df_slice['event_type'] == 'CompleteRegistration']['user_id'].nunique()
+        users_initiate = df_slice[df_slice['event_type'] == 'initiatecheckout']['user_id'].nunique()
+        users_purchase = df_slice[df_slice['event_type'] == 'Purchase']['user_id'].nunique()
+        spend = costs_slice['cost'].sum()
+        cpl = spend / quiz_users if quiz_users > 0 else 0
+        cpa = spend / users_purchase if users_purchase > 0 else 0
+        return dict(
+            quiz_users=quiz_users,
+            users_paywall=users_paywall,
+            users_initiate=users_initiate,
+            users_purchase=users_purchase,
+            spend=spend,
+            cpl=cpl,
+            cpa=cpa
+        )
+
+    metrics_y = get_metrics(df_yesterday, costs_yesterday)
+    metrics_d = get_metrics(df_day_before, costs_day_before)
+
+    def color_delta(val):
+        if val > 0:
+            return f"<span style='color:limegreen'>▲ {val:.1f}</span>"
+        elif val < 0:
+            return f"<span style='color:#e74c3c'>▼ {abs(val):.1f}</span>"
+        else:
+            return "<span style='color:#aaa'>—</span>"
+
+    report_data = [
+        ("Total Spend", metrics_y["spend"], metrics_d["spend"], metrics_y["spend"] - metrics_d["spend"]),
+        ("Cost per Lead", metrics_y["cpl"], metrics_d["cpl"], metrics_y["cpl"] - metrics_d["cpl"]),
+        ("CPA", metrics_y["cpa"], metrics_d["cpa"], metrics_y["cpa"] - metrics_d["cpa"]),
+        ("Quiz Users", metrics_y["quiz_users"], metrics_d["quiz_users"], metrics_y["quiz_users"] - metrics_d["quiz_users"]),
+        ("Paywall Users", metrics_y["users_paywall"], metrics_d["users_paywall"], metrics_y["users_paywall"] - metrics_d["users_paywall"]),
+        ("Initiate", metrics_y["users_initiate"], metrics_d["users_initiate"], metrics_y["users_initiate"] - metrics_d["users_initiate"]),
+        ("Purchase", metrics_y["users_purchase"], metrics_d["users_purchase"], metrics_y["users_purchase"] - metrics_d["users_purchase"]),
+    ]
+
+    st.markdown(f"""
+    <div style='
+        padding: 1em; border-radius: 14px; background: #232324; color: #fff; margin-bottom: 20px;
+        border: 2.5px solid #ffe066; font-size: 16px;
+    '>
+    <h4 style="color:#ffe066; margin:0 0 7px 0;">📈 Динамика: <span style="color:#fff">{yesterday}</span> vs {day_before}</h4>
+    <table style="width:100%; font-size:15px;">
+    <tr><th align='left'>Метрика</th><th>Вчера</th><th>Позавчера</th><th>Δ</th></tr>
+    """ + "\n".join([
+        f"<tr><td>{name}</td><td><b>{y:.2f}</b></td><td>{d:.2f}</td><td>{color_delta(delta)}</td></tr>"
+        for name, y, d, delta in report_data
+    ]) + """
+    </table>
+    </div>
+    """, unsafe_allow_html=True)
+else:
+    st.info("Недостаточно данных для динамики за 2 дня.")
+
+
 # === 2. Фильтры ===
 import datetime
 
@@ -335,77 +406,6 @@ fig.update_layout(
 )
 st.plotly_chart(fig, use_container_width=True)
 
-# === DAILY REPORT: Вчера vs Позавчера ===
-
-# Получаем уникальные даты (UTC или твой таймзон, смотри сам)
-all_dates = sorted(df['event_date'].dt.date.unique())
-if len(all_dates) >= 2:
-    yesterday = all_dates[-1]
-    day_before = all_dates[-2]
-
-    df_yesterday = df[df['event_date'].dt.date == yesterday]
-    df_day_before = df[df['event_date'].dt.date == day_before]
-    costs_yesterday = costs_df[costs_df['day'].dt.date == yesterday]
-    costs_day_before = costs_df[costs_df['day'].dt.date == day_before]
-
-    def get_metrics(df_slice, costs_slice):
-        quiz_users = df_slice[df_slice['event_type'].str.startswith('Step ')]['user_id'].nunique()
-        users_paywall = df_slice[df_slice['event_type'] == 'CompleteRegistration']['user_id'].nunique()
-        users_initiate = df_slice[df_slice['event_type'] == 'initiatecheckout']['user_id'].nunique()
-        users_purchase = df_slice[df_slice['event_type'] == 'Purchase']['user_id'].nunique()
-        spend = costs_slice['cost'].sum()
-        cpl = spend / quiz_users if quiz_users > 0 else 0
-        cpa = spend / users_purchase if users_purchase > 0 else 0
-        return dict(
-            quiz_users=quiz_users,
-            users_paywall=users_paywall,
-            users_initiate=users_initiate,
-            users_purchase=users_purchase,
-            spend=spend,
-            cpl=cpl,
-            cpa=cpa
-        )
-
-    metrics_y = get_metrics(df_yesterday, costs_yesterday)
-    metrics_d = get_metrics(df_day_before, costs_day_before)
-
-    def color_delta(val):
-        if val > 0:
-            return f"<span style='color:limegreen'>▲ {val:.1f}</span>"
-        elif val < 0:
-            return f"<span style='color:#e74c3c'>▼ {abs(val):.1f}</span>"
-        else:
-            return "<span style='color:#aaa'>—</span>"
-
-    report_data = [
-        ("Total Spend", metrics_y["spend"], metrics_d["spend"], metrics_y["spend"] - metrics_d["spend"]),
-        ("Cost per Lead", metrics_y["cpl"], metrics_d["cpl"], metrics_y["cpl"] - metrics_d["cpl"]),
-        ("CPA", metrics_y["cpa"], metrics_d["cpa"], metrics_y["cpa"] - metrics_d["cpa"]),
-        ("Quiz Users", metrics_y["quiz_users"], metrics_d["quiz_users"], metrics_y["quiz_users"] - metrics_d["quiz_users"]),
-        ("Paywall Users", metrics_y["users_paywall"], metrics_d["users_paywall"], metrics_y["users_paywall"] - metrics_d["users_paywall"]),
-        ("Initiate", metrics_y["users_initiate"], metrics_d["users_initiate"], metrics_y["users_initiate"] - metrics_d["users_initiate"]),
-        ("Purchase", metrics_y["users_purchase"], metrics_d["users_purchase"], metrics_y["users_purchase"] - metrics_d["users_purchase"]),
-    ]
-
-    st.markdown(f"""
-    <div style='
-        padding: 1em; border-radius: 14px; background: #232324; color: #fff; margin-bottom: 20px;
-        border: 2.5px solid #ffe066; font-size: 16px;
-    '>
-    <h4 style="color:#ffe066; margin:0 0 7px 0;">📈 Динамика: <span style="color:#fff">{yesterday}</span> vs {day_before}</h4>
-    <table style="width:100%; font-size:15px;">
-    <tr><th align='left'>Метрика</th><th>Вчера</th><th>Позавчера</th><th>Δ</th></tr>
-    """ + "\n".join([
-        f"<tr><td>{name}</td><td><b>{y:.2f}</b></td><td>{d:.2f}</td><td>{color_delta(delta)}</td></tr>"
-        for name, y, d, delta in report_data
-    ]) + """
-    </table>
-    </div>
-    """, unsafe_allow_html=True)
-else:
-    st.info("Недостаточно данных для динамики за 2 дня.")
-
-       
 
 # ===== PATH ANALYSIS ПО ПЕЙВОЛУ (обновлённый) =====
 st.markdown("---")
