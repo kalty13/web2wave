@@ -34,7 +34,7 @@ def core_metrics(df_slice, costs_slice):
         "Initiate → Paddle Initiated": f"{conv_initiate_to_paddle_initiated:.1f}%",
         "Paddle Success": paddle_success,
         "Paddle Fail": paddle_fail,
-        "Quiz → Paddle Success": f"{conv_quiz_to_paddle_success:.2f}%"
+        "Quiz → Paddle Success": f"{conv_quiz_to_paddle_success:.2f}%",
         "CPPU (Cost per Paying User)": f"${cppu:,.2f}"
     }
 
