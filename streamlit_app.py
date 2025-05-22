@@ -320,24 +320,24 @@ st.markdown(
 )
 
 # ==== SUPER SUMMARY TABLE ====
-st.markdown("## 📋 Сводная таблица по воронке, cost и пейволлу")
+#st.markdown("## 📋 Сводная таблица по воронке, cost и пейволлу")
 
-summary_data = [
-    ["Total Spend", f"${total_spend:,.2f}", "Суммарные затраты"],
-    ["Users на 1 шаге", users_start, "Вход в воронку"],
-    ["Users на CompleteRegistration", users_paywall, "Дошли до paywall"],
-    ["Users на initiatecheckout", users_initiate, "Кликнули 'оформить подписку'"],
-    ["Users на Paddle checkout.payment.initiated", users_paddle_initiated, "Перешли к оплате в Paddle"],
-    ["Users на Paddle checkout.completed", users_paddle_completed, "Завершили оплату (Paddle)"],
-    ["Users на Purchase", users_purchase, "Успешная покупка (Purchase event)"],
-    ["CR Paywall → Initiatecheckout", f"{cr_paywall_to_initiate:.1f}%", "CR с paywall до кнопки подписки"],
-    ["CR Paywall → Покупка", f"{cr_paywall_to_purchase:.1f}%", "CR с paywall до покупки"],
-    ["CPA (Cost per Purchase)", f"${cpa_purchase:,.2f}", "Стоимость одного покупателя"],
-    ["Drop-off Paywall → Покупка", f"{dropoff_paywall_to_purchase:.1f}%", "Потери на пути с paywall до покупки"]
-]
+#summary_data = [
+ #   ["Total Spend", f"${total_spend:,.2f}", "Суммарные затраты"],
+  #  ["Users на 1 шаге", users_start, "Вход в воронку"],
+   # ["Users на CompleteRegistration", users_paywall, "Дошли до paywall"],
+#    #["Users на initiatecheckout", users_initiate, "Кликнули 'оформить подписку'"],
+#    ["Users на Paddle checkout.payment.initiated", users_paddle_initiated, "Перешли к оплате в Paddle"],
+#    ["Users на Paddle checkout.completed", users_paddle_completed, "Завершили оплату (Paddle)"],
+#    ["Users на Purchase", users_purchase, "Успешная покупка (Purchase event)"],
+#    ["CR Paywall → Initiatecheckout", f"{cr_paywall_to_initiate:.1f}%", "CR с paywall до кнопки подписки"],
+#    ["CR Paywall → Покупка", f"{cr_paywall_to_purchase:.1f}%", "CR с paywall до покупки"],
+#    ["CPA (Cost per Purchase)", f"${cpa_purchase:,.2f}", "Стоимость одного покупателя"],
+#    ["Drop-off Paywall → Покупка", f"{dropoff_paywall_to_purchase:.1f}%", "Потери на пути с paywall до покупки"]
+#]
 
-summary_df = pd.DataFrame(summary_data, columns=["Metric", "Value", "Comment"])
-st.dataframe(summary_df, hide_index=True, use_container_width=True)
+#summary_df = pd.DataFrame(summary_data, columns=["Metric", "Value", "Comment"])
+#st.dataframe(summary_df, hide_index=True, use_container_width=True)
 
 
 
