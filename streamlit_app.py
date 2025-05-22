@@ -83,18 +83,19 @@ if len(all_dates) >= 3:
             return None
 
     def color_delta(val, percent=False):
-    if val is None:
-        return "<span style='color:#aaa'>—</span>"
-    if percent:
-        val_fmt = f"{abs(val):.1f}%"
-    else:
-        val_fmt = f"{abs(val):,.2f}" if isinstance(val, float) else str(abs(val))
-    if val > 0:
-        return f"<span style='color:limegreen'>▲ {val_fmt}</span>"
-    elif val < 0:
-        return f"<span style='color:#e74c3c'>▼ {val_fmt}</span>"
-    else:
-        return "<span style='color:#aaa'>—</span>"
+        if val is None:
+            return "<span style='color:#aaa'>—</span>"
+        if percent:
+            val_fmt = f"{abs(val):.1f}%"
+        else:
+            val_fmt = f"{abs(val):,.2f}" if isinstance(val, float) else str(abs(val))
+        if val > 0:
+            return f"<span style='color:limegreen'>▲ {val_fmt}</span>"
+        elif val < 0:
+            return f"<span style='color:#e74c3c'>▼ {val_fmt}</span>"
+        else:
+            return "<span style='color:#aaa'>—</span>"
+
 
 
     # нужные метрики
