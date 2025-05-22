@@ -120,19 +120,18 @@ if len(all_dates) >= 3:
         except Exception:
             return None
 
-    def color_delta(val, percent=False):
-        if val is None:
+    def color_delta(val_y, val_d, percent=False):
+        if val_d in (None, 0):
             return "<span style='color:#aaa'>—</span>"
-        if percent:
-            val_fmt = f"{abs(val):.1f}%"
-        else:
-            val_fmt = f"{abs(val):,.2f}" if isinstance(val, float) else str(abs(val))
-        if val > 0:
+        diff = (val_y - val_d) / abs(val_d) * 100
+        val_fmt = f"{abs(diff):.1f}%" if percent or isinstance(diff, float) else str(abs(diff))
+        if diff > 0:
             return f"<span style='color:limegreen'>▲ {val_fmt}</span>"
-        elif val < 0:
+        elif diff < 0:
             return f"<span style='color:#e74c3c'>▼ {val_fmt}</span>"
         else:
             return "<span style='color:#aaa'>—</span>"
+
 
 
 
@@ -144,8 +143,8 @@ if len(all_dates) >= 3:
     "Registration Complete",
     "Quiz Started → Quiz Finished",
     "Initiate Purchase",
-    "Paywall → Initiate Purchase",
     "Paddle Initiated",
+    "Paywall → Initiate Purchase",
     "Initiate → Paddle Initiated",
     "Paddle Success",
     "Paddle Fail",
@@ -174,7 +173,7 @@ if len(all_dates) >= 3:
         f"<tr><td>{name}</td>"
         f"<td align='center'><b>{metrics_y[name]}</b></td>"
         f"<td align='center'>{metrics_d[name]}</td>"
-        f"<td align='center'>{color_delta(parse_metric(metrics_y[name]) - parse_metric(metrics_d[name]), percent=('%' in name))}</td></tr>"
+        f"<td align='center'>{color_delta(parse_metric(metrics_y[name]), parse_metric(metrics_d[name]), percent=('%' in name))}</td></tr>"
         for name in metric_keys
     ]) + """
     </table>
