@@ -40,9 +40,9 @@ costs_df['day'] = pd.to_datetime(costs_df['day'])
 
 # Получаем уникальные даты (UTC или твой таймзон, смотри сам)
 all_dates = sorted(df['event_date'].dt.date.unique())
-if len(all_dates) >= 2:
-    yesterday = all_dates[-1]
-    day_before = all_dates[-2]
+if len(all_dates) >= 3:
+    yesterday = all_dates[-2]
+    day_before = all_dates[-3]
 
     df_yesterday = df[df['event_date'].dt.date == yesterday]
     df_day_before = df[df['event_date'].dt.date == day_before]
@@ -88,21 +88,21 @@ if len(all_dates) >= 2:
         ("Purchase", metrics_y["users_purchase"], metrics_d["users_purchase"], metrics_y["users_purchase"] - metrics_d["users_purchase"]),
     ]
 
-    st.markdown(f"""
-    <div style='
-        padding: 1em; border-radius: 14px; background: #232324; color: #fff; margin-bottom: 20px;
-        border: 2.5px solid #ffe066; font-size: 16px;
-    '>
-    <h4 style="color:#ffe066; margin:0 0 7px 0;">📈 Динамика: <span style="color:#fff">{yesterday}</span> vs {day_before}</h4>
-    <table style="width:100%; font-size:15px;">
-    <tr><th align='left'>Метрика</th><th>Вчера</th><th>Позавчера</th><th>Δ</th></tr>
-    """ + "\n".join([
-        f"<tr><td>{name}</td><td><b>{y:.2f}</b></td><td>{d:.2f}</td><td>{color_delta(delta)}</td></tr>"
-        for name, y, d, delta in report_data
-    ]) + """
-    </table>
-    </div>
-    """, unsafe_allow_html=True)
+   st.markdown(f"""
+<div style='
+    padding: 1em; border-radius: 14px; background: #232324; color: #fff; margin-bottom: 20px;
+    border: 2.5px solid #ffe066; font-size: 16px;
+'>
+<h4 style="color:#ffe066; margin:0 0 7px 0;">📈 Динамика: <span style="color:#fff">{yesterday.strftime('%Y-%m-%d')}</span> vs <span style="color:#fff">{day_before.strftime('%Y-%m-%d')}</span></h4>
+<table style="width:100%; font-size:15px;">
+<tr><th align='left'>Метрика</th><th>{yesterday.strftime('%Y-%m-%d')}</th><th>{day_before.strftime('%Y-%m-%d')}</th><th>Δ</th></tr>
+""" + "\n".join([
+    f"<tr><td>{name}</td><td><b>{y:.2f}</b></td><td>{d:.2f}</td><td>{color_delta(delta)}</td></tr>"
+    for name, y, d, delta in report_data
+]) + """
+</table>
+</div>
+""", unsafe_allow_html=True)
 else:
     st.info("Недостаточно данных для динамики за 2 дня.")
 
