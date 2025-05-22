@@ -88,7 +88,7 @@ if len(all_dates) >= 3:
         ("Purchase", metrics_y["users_purchase"], metrics_d["users_purchase"], metrics_y["users_purchase"] - metrics_d["users_purchase"]),
     ]
 
-   st.markdown(f"""
+st.markdown(f"""
 <div style='
     padding: 1em; border-radius: 14px; background: #232324; color: #fff; margin-bottom: 20px;
     border: 2.5px solid #ffe066; font-size: 16px;
@@ -103,7 +103,7 @@ if len(all_dates) >= 3:
 </table>
 </div>
 """, unsafe_allow_html=True)
-else:
+
     st.info("Недостаточно данных для динамики за 2 дня.")
 
 
