@@ -6,6 +6,25 @@ import numpy as np
 st.set_page_config(layout="wide")
 st.title("📊 W2W Funnel Report")
 
+def core_metrics(df_slice, costs_slice):
+    total_spend = costs_slice['cost'].sum()
+    first_step_event = df_slice[df_slice['event_type'].str.startswith("Step 00")]['user_id'].nunique()
+    registration_complete = df_slice[df_slice['event_type'] == 'CompleteRegistration']['user_id'].nunique()
+    cpl = total_spend / first_step_event if first_step_event > 0 else 0
+    conv_start_finish = (registration_complete / first_step_event * 100) if first_step_event > 0 else 0
+    init_purchase = df_slice[df_slice['event_type'] == 'InitiateCheckout']['user_id'].nunique()
+    conv_paywall_initiate = (init_purchase / registration_complete * 100) if registration_complete > 0 else 0
+    return {
+        "Total Spend": f"${total_spend:,.2f}",
+        "Cost per Lead": f"${cpl:,.2f}",
+        "Started Quiz": first_step_event,
+        "Registration Complete": registration_complete,
+        "Quiz Started → Quiz Finished": f"{conv_start_finish:.1f}%",
+        "Initiate Purchase": init_purchase,
+        "Paywall → Initiate Purchase": f"{conv_paywall_initiate:.1f}%"
+    }
+
+
 # === 1. Загрузка файлов ===
 #st.markdown("### Загрузка файлов данных")
 #col1, col2 = st.columns(2)
@@ -39,6 +58,8 @@ costs_df['day'] = pd.to_datetime(costs_df['day'])
 # === DAILY REPORT: Вчера vs Позавчера ===
 
 # Получаем уникальные даты (UTC или твой таймзон, смотри сам)
+# === DAILY REPORT: Вчера vs Позавчера с нужными метриками ===
+
 all_dates = sorted(df['event_date'].dt.date.unique())
 if len(all_dates) >= 3:
     yesterday = all_dates[-2]
@@ -49,59 +70,74 @@ if len(all_dates) >= 3:
     costs_yesterday = costs_df[costs_df['day'].dt.date == yesterday]
     costs_day_before = costs_df[costs_df['day'].dt.date == day_before]
 
-    def get_metrics(df_slice, costs_slice):
-        quiz_users = df_slice[df_slice['event_type'].str.startswith('Step ')]['user_id'].nunique()
-        users_paywall = df_slice[df_slice['event_type'] == 'CompleteRegistration']['user_id'].nunique()
-        users_initiate = df_slice[df_slice['event_type'] == 'initiatecheckout']['user_id'].nunique()
-        users_purchase = df_slice[df_slice['event_type'] == 'Purchase']['user_id'].nunique()
-        spend = costs_slice['cost'].sum()
-        cpl = spend / quiz_users if quiz_users > 0 else 0
-        cpa = spend / users_purchase if users_purchase > 0 else 0
-        return dict(
-            quiz_users=quiz_users,
-            users_paywall=users_paywall,
-            users_initiate=users_initiate,
-            users_purchase=users_purchase,
-            spend=spend,
-            cpl=cpl,
-            cpa=cpa
-        )
+    # используем твою функцию core_metrics
+    metrics_y = core_metrics(df_yesterday, costs_yesterday)
+    metrics_d = core_metrics(df_day_before, costs_day_before)
 
-    metrics_y = get_metrics(df_yesterday, costs_yesterday)
-    metrics_d = get_metrics(df_day_before, costs_day_before)
+    # функция сравнения (разница), с автоопределением процентов
+    def parse_metric(value):
+        if isinstance(value, (int, float)):
+            return value
+        v = str(value).replace("$", "").replace("%", "").replace(",", "").strip()
+        try:
+            return float(v)
+        except Exception:
+            return None
 
-    def color_delta(val):
+    def color_delta(val, percent=False):
+        if val is None:
+            return "<span style='color:#aaa'>—</span>"
+        if percent:
+            val_fmt = f"{val:.1f}%"
+        else:
+            val_fmt = f"{val:,.2f}" if isinstance(val, float) else str(val)
         if val > 0:
-            return f"<span style='color:limegreen'>▲ {val:.1f}</span>"
+            return f"<span style='color:limegreen'>▲ {val_fmt}</span>"
         elif val < 0:
-            return f"<span style='color:#e74c3c'>▼ {abs(val):.1f}</span>"
+            return f"<span style='color:#e74c3c'>▼ {abs(val_fmt)}</span>"
         else:
             return "<span style='color:#aaa'>—</span>"
 
-    report_data = [
-        ("Total Spend", metrics_y["spend"], metrics_d["spend"], metrics_y["spend"] - metrics_d["spend"]),
-        ("Cost per Lead", metrics_y["cpl"], metrics_d["cpl"], metrics_y["cpl"] - metrics_d["cpl"]),
-        ("CPA", metrics_y["cpa"], metrics_d["cpa"], metrics_y["cpa"] - metrics_d["cpa"]),
-        ("Quiz Users", metrics_y["quiz_users"], metrics_d["quiz_users"], metrics_y["quiz_users"] - metrics_d["quiz_users"]),
-        ("Paywall Users", metrics_y["users_paywall"], metrics_d["users_paywall"], metrics_y["users_paywall"] - metrics_d["users_paywall"]),
-        ("Initiate", metrics_y["users_initiate"], metrics_d["users_initiate"], metrics_y["users_initiate"] - metrics_d["users_initiate"]),
-        ("Purchase", metrics_y["users_purchase"], metrics_d["users_purchase"], metrics_y["users_purchase"] - metrics_d["users_purchase"]),
+    # нужные метрики
+    metric_keys = [
+        "Total Spend",
+        "Cost per Lead",
+        "Started Quiz",
+        "Registration Complete",
+        "Quiz Started → Quiz Finished",
+        "Initiate Purchase",
+        "Paywall → Initiate Purchase"
     ]
-st.markdown(f"""
-<div style='
-    padding: 1em; border-radius: 14px; background: #232324; color: #fff; margin-bottom: 20px;
-    border: 2.5px solid #ffe066; font-size: 16px;
-'>
-<h4 style="color:#ffe066; margin:0 0 7px 0;">📈 Динамика: <span style="color:#fff">{yesterday.strftime('%Y-%m-%d')}</span> vs <span style="color:#fff">{day_before.strftime('%Y-%m-%d')}</span></h4>
-<table style="width:100%; font-size:15px;">
-<tr><th align='left'>Метрика</th><th>{yesterday.strftime('%Y-%m-%d')}</th><th>{day_before.strftime('%Y-%m-%d')}</th><th>Δ</th></tr>
-""" + "\n".join([
-    f"<tr><td>{name}</td><td><b>{y:.2f}</b></td><td>{d:.2f}</td><td>{color_delta(delta)}</td></tr>"
-    for name, y, d, delta in report_data
-]) + """
-</table>
-</div>
-""", unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div style='
+        padding: 1.1em; border-radius: 14px; background: #232324; color: #fff; margin-bottom: 18px;
+        border: 2.5px solid #ffe066; font-size: 16px; font-family: Inter, Arial, sans-serif;
+    '>
+    <h4 style="color:#ffe066; margin:0 0 7px 0;">
+        🎯 Основные метрики: <span style="color:#fff">{yesterday.strftime('%Y-%m-%d')}</span>
+        vs <span style="color:#fff">{day_before.strftime('%Y-%m-%d')}</span>
+    </h4>
+    <table style="width:100%; font-size:15px;">
+        <tr>
+            <th align='left'>Метрика</th>
+            <th align='center'>{yesterday.strftime('%Y-%m-%d')}</th>
+            <th align='center'>{day_before.strftime('%Y-%m-%d')}</th>
+            <th align='center'>Δ</th>
+        </tr>
+    """ + "\n".join([
+        f"<tr><td>{name}</td>"
+        f"<td align='center'><b>{metrics_y[name]}</b></td>"
+        f"<td align='center'>{metrics_d[name]}</td>"
+        f"<td align='center'>{color_delta(parse_metric(metrics_y[name]) - parse_metric(metrics_d[name]), percent=('%' in name))}</td></tr>"
+        for name in metric_keys
+    ]) + """
+    </table>
+    </div>
+    """, unsafe_allow_html=True)
+else:
+    st.info("Недостаточно данных для динамики за 2 дня.")
+
 
 
 #st.info("Недостаточно данных для динамики за 2 дня.")
