@@ -6,63 +6,62 @@ st.set_page_config(layout="wide")
 
 st.title("📊 W2W Funnel Report")
 
-# === Цветная и анимированная кнопка через HTML ===
+# Красивая анимированная кнопка — псевдокнопка, но с hover-эффектом и анимацией!
 st.markdown("""
 <style>
-.pro-mode-btn {
+.fake-pro-btn {
     display: inline-block;
-    background: linear-gradient(90deg,#ffe066 65%,#ad69fa 100%);
+    background: linear-gradient(90deg,#ffe066 60%,#ad69fa 100%);
     color: #232324;
-    font-size: 1.08rem;
-    font-weight: 700;
+    font-size: 2.1rem;
+    font-weight: 800;
     border: none;
-    border-radius: 9px;
-    padding: 0.47em 1.35em;
+    border-radius: 22px;
+    padding: 0.55em 2.5em;
     cursor: pointer;
-    box-shadow: 0 4px 18px #ad69fa40;
-    transition: transform 0.13s cubic-bezier(.4,2.4,.9,.8), box-shadow 0.2s;
-    animation: shine 1.8s linear infinite;
-    margin-left: 10px;
-    margin-top: 4px;
+    box-shadow: 0 7px 30px #ad69fa55;
+    margin: 26px 0 2px 0;
+    letter-spacing: 1.05px;
+    text-shadow: 0 2px 8px #fff8, 0 1px 1px #ffe06680;
+    user-select: none;
+    animation: shine 2.3s linear infinite;
+    transition: 
+        transform 0.16s cubic-bezier(.4,2.4,.9,.8), 
+        box-shadow 0.18s, 
+        color 0.14s;
+    outline: none;
 }
-.pro-mode-btn:hover {
-    transform: scale(1.09) rotate(-2deg);
-    box-shadow: 0 7px 32px #ffe06655, 0 0 0 2px #ad69fa77;
+.fake-pro-btn:hover {
+    transform: scale(1.08) rotate(-2.5deg);
+    box-shadow: 0 10px 38px #ffe06677, 0 0px 0 2px #ad69fa77;
     color: #ad69fa;
 }
 @keyframes shine {
     0% { box-shadow: 0 0 16px #ffe06644, 0 0 0 #ad69fa33;}
-    50% { box-shadow: 0 0 30px #ad69fa99, 0 0 20px #ffe06633;}
+    50% { box-shadow: 0 0 36px #ad69fa99, 0 0 30px #ffe06633;}
     100% { box-shadow: 0 0 16px #ffe06644, 0 0 0 #ad69fa33;}
 }
 </style>
+<div class="fake-pro-btn" tabindex="0" title="Переведи тумблер ниже для активации!">🚀 Enable Pro Mode</div>
 """, unsafe_allow_html=True)
 
-# Кнопка — html + сессия
-col1, col2 = st.columns([7, 1])
-with col2:
-    pro_mode = st.button("🚀 Enable Pro Mode", key="pro_mode_btn", help="Открыть Pro-режим", type="primary")
-    # Цвет и анимация идут через класс .pro-mode-btn
-    st.markdown(
-        '<button class="pro-mode-btn" onclick="window.parent.postMessage({pro: true}, \'*\')">🚀 Enable Pro Mode</button>',
-        unsafe_allow_html=True
-    )
+# Настоящий свитчер
+if 'pro_mode_on' not in st.session_state:
+    st.session_state['pro_mode_on'] = False
 
-if 'show_pro_popup' not in st.session_state:
-    st.session_state['show_pro_popup'] = False
+pro_mode = st.toggle("Pro Mode", value=st.session_state['pro_mode_on'], key="pro_toggle")
+st.session_state['pro_mode_on'] = pro_mode
 
-if pro_mode:
-    st.session_state['show_pro_popup'] = True
-
-if st.session_state['show_pro_popup']:
+# POPUP при ON
+if st.session_state['pro_mode_on']:
     st.markdown("""
         <div style="
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(30,30,40,0.87); z-index: 9999; display: flex; align-items: center; justify-content: center;
+            background: rgba(30,30,40,0.92); z-index: 9999; display: flex; align-items: center; justify-content: center;
         ">
             <div style="background: #232324; border: 3px solid #ffe066; border-radius: 18px; padding: 36px 48px; box-shadow: 0 8px 32px #0007; min-width: 370px; text-align: center;">
-                <div style="font-size: 2.3rem; font-weight: bold; color: #ffe066;">🚀 Enable Pro Mode</div>
+                <div style="font-size: 2.3rem; font-weight: bold; color: #ffe066;">🚀 Pro Mode</div>
                 <div style="margin-top: 20px; font-size: 1.1rem; color: #fff;">
                     Хочешь пожизненный доступ к Pro-функциям и секретным фичам? 😉<br>
                     <span style="font-size: 1.45rem; font-weight: bold; color: #38ef7d;">0.003฿</span>
@@ -81,11 +80,12 @@ if st.session_state['show_pro_popup']:
         </div>
         """, unsafe_allow_html=True)
 
-    # Кнопка для закрытия (обычный Streamlit, чтобы не было ошибок)
+    # Кнопка закрытия (реальный Streamlit-виджет)
     close_col = st.columns([6,1,6])[1]
     with close_col:
-        if st.button("Закрыть окно Pro Mode"):
-            st.session_state['show_pro_popup'] = False
+        if st.button("Закрыть окно Pro Mode", key="close_pro_btn"):
+            st.session_state['pro_mode_on'] = False
+
 
 
 
