@@ -8,18 +8,63 @@ st.title("📊 W2W Funnel Report")
 
 import streamlit as st
 
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import numpy as np
 
+st.set_page_config(layout="wide")
+st.title("📊 W2W Funnel Report")
 
-# Кнопка Pro Mode
-show_pro_popup = st.session_state.get('show_pro_popup', False)
+# === Цветная и анимированная кнопка через HTML ===
+st.markdown("""
+<style>
+.pro-mode-btn {
+    display: inline-block;
+    background: linear-gradient(90deg,#ffe066 65%,#ad69fa 100%);
+    color: #232324;
+    font-size: 1.08rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 9px;
+    padding: 0.47em 1.35em;
+    cursor: pointer;
+    box-shadow: 0 4px 18px #ad69fa40;
+    transition: transform 0.13s cubic-bezier(.4,2.4,.9,.8), box-shadow 0.2s;
+    animation: shine 1.8s linear infinite;
+    margin-left: 10px;
+    margin-top: 4px;
+}
+.pro-mode-btn:hover {
+    transform: scale(1.09) rotate(-2deg);
+    box-shadow: 0 7px 32px #ffe06655, 0 0 0 2px #ad69fa77;
+    color: #ad69fa;
+}
+@keyframes shine {
+    0% { box-shadow: 0 0 16px #ffe06644, 0 0 0 #ad69fa33;}
+    50% { box-shadow: 0 0 30px #ad69fa99, 0 0 20px #ffe06633;}
+    100% { box-shadow: 0 0 16px #ffe06644, 0 0 0 #ad69fa33;}
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Кнопка — html + сессия
 col1, col2 = st.columns([7, 1])
 with col2:
-    if st.button("🚀 Pro Mode", key="pro_mode_btn", help="Открыть Pro-режим"):
-        st.session_state['show_pro_popup'] = True
-        show_pro_popup = True
+    pro_mode = st.button("🚀 Pro Mode", key="pro_mode_btn", help="Открыть Pro-режим", type="primary")
+    # Цвет и анимация идут через класс .pro-mode-btn
+    st.markdown(
+        '<button class="pro-mode-btn" onclick="window.parent.postMessage({pro: true}, \'*\')">🚀 Pro Mode</button>',
+        unsafe_allow_html=True
+    )
 
-# POPUP реализация
-if st.session_state.get('show_pro_popup', False):
+if 'show_pro_popup' not in st.session_state:
+    st.session_state['show_pro_popup'] = False
+
+if pro_mode:
+    st.session_state['show_pro_popup'] = True
+
+if st.session_state['show_pro_popup']:
     st.markdown("""
         <div style="
             position: fixed;
@@ -33,23 +78,25 @@ if st.session_state.get('show_pro_popup', False):
                     <span style="font-size: 1.45rem; font-weight: bold; color: #38ef7d;">0.003฿</span>
                     <div style="margin-top:12px; color:#ffe066; font-size: 1.15rem;">
                         Переведи на адрес:<br>
-                        <span style="user-select: all; color: #fff; font-family: monospace;">14H4r2phGv9mbK4XHDdDDR6JPjDbvDr6Zp</span>
+                        <span style="user-select: all; color: #fff; font-family: monospace;">
+                            14H4r2phGv9mbK4XHDdDDR6JPjDbvDr6Zp
+                        </span>
                     </div>
                     <div style="margin-top:10px; color:#ff6363; font-size: 0.99rem;">
                         После оплаты — напиши в <a href="https://t.me/kalty13" target="_blank" style="color:#ffe066;">Telegram</a>.<br>
                         Твой аккаунт будет разблокирован в течение 10 минут!
                     </div>
                 </div>
-                <form action="" method="post">
-                    <button name="close_pro_popup" type="submit" style="margin-top: 30px; background: #ffe066; color: #232324; font-weight: bold; border-radius: 9px; padding: 8px 28px; border: none; font-size: 1rem; cursor: pointer;">Закрыть</button>
-                </form>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-    # Обработка закрытия
-    if 'close_pro_popup' in st.session_state:
-        st.session_state['show_pro_popup'] = False
+    # Кнопка для закрытия (обычный Streamlit, чтобы не было ошибок)
+    close_col = st.columns([6,1,6])[1]
+    with close_col:
+        if st.button("Закрыть окно Pro Mode"):
+            st.session_state['show_pro_popup'] = False
+
 
 
 def core_metrics(df_slice, costs_slice):
