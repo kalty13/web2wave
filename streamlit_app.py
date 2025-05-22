@@ -20,6 +20,7 @@ def core_metrics(df_slice, costs_slice):
     paddle_fail = df_slice[df_slice['event_type'] == 'Paddle checkout.payment.failed']['user_id'].nunique()
     conv_quiz_to_paddle_success = (paddle_success / first_step_event * 100) if first_step_event > 0 else 0
     conv_initiate_to_paddle_initiated = (paddle_initiated / init_purchase * 100) if init_purchase > 0 else 0
+    cppu = total_spend / paddle_success if paddle_success > 0 else 0
 
     return {
         "Total Spend": f"${total_spend:,.2f}",
@@ -34,6 +35,7 @@ def core_metrics(df_slice, costs_slice):
         "Paddle Success": paddle_success,
         "Paddle Fail": paddle_fail,
         "Quiz → Paddle Success": f"{conv_quiz_to_paddle_success:.2f}%"
+        "CPPU (Cost per Paying User)": f"${cppu:,.2f}"
     }
 
     total_spend = costs_slice['cost'].sum()
@@ -148,7 +150,8 @@ if len(all_dates) >= 3:
     "Initiate → Paddle Initiated",
     "Paddle Success",
     "Paddle Fail",
-    "Quiz → Paddle Success"
+    "Quiz → Paddle Success",
+    "CPPU (Cost per Paying User)"
 ]
 
 
