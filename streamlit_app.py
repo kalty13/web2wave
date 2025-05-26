@@ -583,38 +583,38 @@ fig.update_layout(
 )
 st.plotly_chart(fig, use_container_width=True)
 
-# === ТАБЛИЦА МЕТРИК ПОД ГРАФИКОМ ===
+# === ТАБЛИЦА МЕТРИК ПОД ГРАФИКОМ — С ЭМОДЖИ И CPPU ===
 
-# Собираем метрики из тех же переменных, что в верхней summary-плашке:
+# Защитимся от деления на ноль
+cost_per_purchase = total_spend / paddle_success if paddle_success > 0 else 0
+
 funnel_metrics_data = [
-    ["Total Spend", f"${total_spend:,.2f}"],
-    ["Cost per Click", f"${total_spend / users_at_step[0]:.2f}" if users_at_step[0] > 0 else "—"],
-    ["Median time to paywall", f"{median_minutes_to_paywall:.1f} мин" if median_minutes_to_paywall is not None else "—"],
-    ["Median paywall→purchase", f"{median_minutes_paywall_to_purchase:.1f} мин" if median_minutes_paywall_to_purchase is not None else "—"],
-    ["Dates", f"{date_from} — {date_to}"],
-    ["Drop-off", f"{step_names[max_drop_idx]} ({dropoff_between_steps[max_drop_idx]:.1f}%)"],
-    ["Paddle Initiate", users_paddle_initiated],
-    ["Paddle Success", f"{paddle_success} ({paddle_success_ratio:.1f}%)"],
-    ["Paddle Fail", f"{paddle_fail} ({paddle_fail_ratio:.1f}%)"],
+    ["💸 <b>Total Spend</b>", f"${total_spend:,.2f}"],
+    ["🧮 <b>Cost per Click</b>", f"${total_spend / users_at_step[0]:.2f}" if users_at_step[0] > 0 else "—"],
+    ["💰 <b>Cost per Purchase (CPPU)</b>", f"${cost_per_purchase:,.2f}" if paddle_success > 0 else "—"],
+    ["⏳ <b>Median time to paywall</b>", f"{median_minutes_to_paywall:.1f} мин" if median_minutes_to_paywall is not None else "—"],
+    ["⏳ <b>Median paywall→purchase</b>", f"{median_minutes_paywall_to_purchase:.1f} мин" if median_minutes_paywall_to_purchase is not None else "—"],
+    ["📆 <b>Dates</b>", f"{date_from} — {date_to}"],
+    ["🔻 <b>Drop-off</b>", f"{step_names[max_drop_idx]} ({dropoff_between_steps[max_drop_idx]:.1f}%)"],
+    ["🟣 <b>Paddle Initiate</b>", users_paddle_initiated],
+    ["✅ <b>Paddle Success</b>", f"{paddle_success} <span style='color:limegreen'>({paddle_success_ratio:.1f}%)</span>"],
+    ["❌ <b>Paddle Fail</b>", f"{paddle_fail} <span style='color:#e74c3c'>({paddle_fail_ratio:.1f}%)</span>"],
 ]
 
-# Оформим красивой HTML-таблицей (можно через st.dataframe, но html — плотнее):
 rows = "\n".join([
-    f"<tr><td><b>{name}</b></td><td style='text-align:right'>{val}</td></tr>"
+    f"<tr><td style='padding:3px 10px 3px 0;'>{name}</td><td style='text-align:right; padding:3px 10px 3px 0;'>{val}</td></tr>"
     for name, val in funnel_metrics_data
 ])
+
 st.markdown(f"""
-<div style='margin:22px 0 26px 0; border-radius:13px; background:#232324; border:2px solid #ffe066; width:fit-content; min-width: 390px; max-width:590px;'>
-    <table style='width:100%; font-size:1.13rem; color:#fff; margin:0;'>
+<div style='margin:22px 0 26px 0; border-radius:13px; background:#232324; border:2.5px solid #ffe066; width:fit-content; min-width: 420px; max-width:600px;'>
+    <table style='width:100%; font-size:1.14rem; color:#fff; margin:0;'>
         <tr>
-            <th colspan='2' style="padding:10px 0 10px 18px; color:#ffe066; font-size:1.18rem; text-align:left;">
+            <th colspan='2' style="padding:11px 0 10px 18px; color:#ffe066; font-size:1.18rem; text-align:left;">
                 📋 Funnel Metrics Summary
             </th>
         </tr>
-        {rows}
-    </table>
-</div>
-""", unsafe_allow_html=True)
+
 
 
 # ===== PATH ANALYSIS ПО ПЕЙВОЛУ (обновлённый) =====
