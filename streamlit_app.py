@@ -581,13 +581,12 @@ fig.update_layout(
     legend=dict(x=1, y=1.15, orientation="h"),
     margin=dict(t=80, b=80),
 )
+
 st.plotly_chart(fig, use_container_width=True)
 
 # === ТАБЛИЦА МЕТРИК ПОД ГРАФИКОМ — С ЭМОДЖИ И CPPU ===
 
-# Защитимся от деления на ноль
-cost_per_purchase = total_spend / paddle_success if paddle_success > 0 else 0
-
+# (мой блок как выше, без изменений, начиная с funnel_metrics_data = ...)
 funnel_metrics_data = [
     ["💸 <b>Total Spend</b>", f"${total_spend:,.2f}"],
     ["🧮 <b>Cost per Click</b>", f"${total_spend / users_at_step[0]:.2f}" if users_at_step[0] > 0 else "—"],
@@ -614,6 +613,11 @@ st.markdown(f"""
                 📋 Funnel Metrics Summary
             </th>
         </tr>
+        {rows}
+    </table>
+</div>
+""", unsafe_allow_html=True)
+
 
 
 
