@@ -585,13 +585,16 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 # === ТАБЛИЦА МЕТРИК ПОД ГРАФИКОМ — С ЭМОДЖИ И CPPU ===
-cost_per_purchase = total_spend / paddle_success if paddle_success > 0 else 0,
+cost_per_purchase = total_spend / paddle_success if paddle_success > 0 else None
+
+
+
 
 # (мой блок как выше, без изменений, начиная с funnel_metrics_data = ...)
 funnel_metrics_data = [
     ["💸 <b>Total Spend</b>", f"${total_spend:,.2f}"],
     ["🧮 <b>Cost per Click</b>", f"${total_spend / users_at_step[0]:.2f}" if users_at_step[0] > 0 else "—"],
-    ["💰 <b>Cost per Purchase (CPPU)</b>", f"${cost_per_purchase:,.2f}" if paddle_success > 0 else "—"],
+    ["💰 <b>Cost per Purchase (CPPU)</b>", f"${cost_per_purchase:,.2f}" if cost_per_purchase is not None else "—"],
     ["⏳ <b>Median time to paywall</b>", f"{median_minutes_to_paywall:.1f} мин" if median_minutes_to_paywall is not None else "—"],
     ["⏳ <b>Median paywall→purchase</b>", f"{median_minutes_paywall_to_purchase:.1f} мин" if median_minutes_paywall_to_purchase is not None else "—"],
     ["📆 <b>Dates</b>", f"{date_from} — {date_to}"],
