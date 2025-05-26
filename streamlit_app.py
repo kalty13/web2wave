@@ -585,6 +585,7 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 # === ТАБЛИЦА МЕТРИК ПОД ГРАФИКОМ — С ЭМОДЖИ И CPPU ===
+cost_per_purchase = total_spend / paddle_success if paddle_success > 0 else 0,
 
 # (мой блок как выше, без изменений, начиная с funnel_metrics_data = ...)
 funnel_metrics_data = [
